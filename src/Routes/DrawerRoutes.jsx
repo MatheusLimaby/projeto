@@ -1,58 +1,29 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Ionicons } from "@expo/vector-icons";
+import { NavigationContainer } from "@react-navigation/native";
+
+import TreinadorStack from "./TreinadorStack";
+import PokedexStack from "./PokedexStack";
+import ItensStack from "./ItensStack";
+import InsigniaStack from "./InsigniaStack"; // Importar
+import EquipeStack from "./EquipeStack"; // Importar
+
 import HomeScreen from "../Screens/HomeScreen";
-import AnimaisStack from "./AnimaisStack";
-import ProdutosStack from "./ProdutosStack";
-import ServicosStack from "./ServicosStack";
+import FavoritosScreen from "../Screens/FavoritosScreen";
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerRoutes() {
   return (
-    <Drawer.Navigator>
-      <Drawer.Screen
-        name="HomeScreen"
-        component={HomeScreen}
-        options={{
-          title: "PetShop",
-          headerTitleAlign: "center",
-          headerTintColor: "#fff",
-          headerStyle: { backgroundColor: "#f4511e" },
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="AnimaisStack"
-        component={AnimaisStack}
-        options={{
-          title: "Animais",
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="paw" color={color} size={size} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="ProdutosStack"
-        component={ProdutosStack}
-        options={{
-          title: "Produtos",
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="cube" color={color} size={size} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="ServicosStack"
-        component={ServicosStack}
-        options={{
-          title: "Serviços",
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="construct" color={color} size={size} />
-          ),
-        }}
-      />
-    </Drawer.Navigator>
+    <NavigationContainer>
+      <Drawer.Navigator initialRouteName="Home">
+        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Pokédex" component={PokedexStack} />
+        <Drawer.Screen name="Treinadores" component={TreinadorStack} />
+        <Drawer.Screen name="Minhas Equipes" component={EquipeStack} />
+        <Drawer.Screen name="Minhas Insígnias" component={InsigniaStack} />
+        <Drawer.Screen name="Itens" component={ItensStack} />
+        <Drawer.Screen name="Favoritos" component={FavoritosScreen} />
+      </Drawer.Navigator>
+    </NavigationContainer>
   );
 }
