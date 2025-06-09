@@ -8,7 +8,7 @@ import InsigniaStack from "./InsigniaStack";
 import EquipeStack from "./EquipeStack";
 
 import HomeScreen from "../Screens/HomeScreen";
-import FavoritosScreen from "../Screens/FavoritosScreen";
+
 
 const Drawer = createDrawerNavigator();
 
@@ -86,19 +86,7 @@ export default function DrawerRoutes() {
             },
           }}
         />
-        <Drawer.Screen
-          name="Favoritos"
-          component={FavoritosScreen}
-          options={{
-            headerStyle: {
-              backgroundColor: "purple", // Define a cor de fundo do header para vermelho
-            },
-            headerTintColor: "#fff", // Define a cor do título e do ícone do menu para branco
-            headerTitleStyle: {
-              fontWeight: "bold",
-            },
-          }}
-        />
+        
       </Drawer.Navigator>
     </NavigationContainer>
   );

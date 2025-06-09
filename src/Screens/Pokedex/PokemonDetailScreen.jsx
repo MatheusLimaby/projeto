@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// 1. ADICIONADO: Importar 'Image' do react-native
 import { View, StyleSheet, ScrollView, Image } from "react-native";
 import {
   ActivityIndicator,
@@ -8,9 +7,9 @@ import {
   Card,
   Divider,
   Chip,
-  FAB,
 } from "react-native-paper";
-import { toggleFavorite, getFavorites } from "../../Services/Storage";
+// REMOVIDO: Funções de favorito não são mais necessárias
+// import { toggleFavorite, getFavorites } from "../../Services/Storage";
 import api from "../../Services/api";
 
 const capitalize = (str) =>
@@ -45,18 +44,23 @@ export default function PokemonDetailScreen({ route, navigation }) {
   const { pokemonId } = route.params;
   const [pokemon, setPokemon] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isFavorite, setIsFavorite] = useState(false);
+  // REMOVIDO: Estado 'isFavorite'
+  // const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
         const response = await api.get(`pokemon/${pokemonId}`);
-        const favorites = await getFavorites();
+        // REMOVIDO: Lógica para verificar se é favorito
         setPokemon(response.data);
-        setIsFavorite(favorites.some((p) => p.id === pokemonId));
       } catch (error) {
         console.error("Erro ao buscar detalhes:", error);
+        // Adicionado: Alerta para o usuário em caso de erro
+        Alert.alert(
+          "Erro",
+          "Não foi possível carregar os detalhes do Pokémon."
+        );
       } finally {
         setLoading(false);
       }
@@ -64,12 +68,7 @@ export default function PokemonDetailScreen({ route, navigation }) {
     fetchDetails();
   }, [pokemonId]);
 
-  const handleToggleFavorite = async () => {
-    if (!pokemon) return;
-    const pokemonData = { id: pokemon.id, name: pokemon.name };
-    await toggleFavorite(pokemonData);
-    setIsFavorite(!isFavorite);
-  };
+  // REMOVIDO: Função handleToggleFavorite
 
   if (loading) {
     return (
@@ -86,24 +85,14 @@ export default function PokemonDetailScreen({ route, navigation }) {
     );
   }
 
-  const primaryType = pokemon.types[0].type.name;
-  const themeColor = getTypeColor(primaryType);
-
   return (
     <View style={styles.container}>
       <ScrollView>
         <Card style={styles.card}>
-          <FAB
-            style={[styles.fab, { backgroundColor: themeColor }]}
-            small
-            icon={isFavorite ? "heart" : "heart-outline"}
-            color="#fff"
-            onPress={handleToggleFavorite}
-          />
+          {/* REMOVIDO: Botão de favorito (FAB) */}
 
           {/* Imagem do Pokémon */}
           <Card.Content style={styles.headerContent}>
-            {/* 3. MUDANÇA: Substituído Avatar.Image por Image */}
             <Image
               source={{
                 uri: pokemon.sprites.other["official-artwork"].front_default,
@@ -168,23 +157,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 4,
   },
-  fab: {
-    position: "absolute",
-    margin: 16,
-    right: 0,
-    top: 0,
-    zIndex: 1,
-  },
   headerContent: {
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 10,
   },
-  // 4. MUDANÇA: Estilo para a imagem retangular
   pokemonImage: {
     width: 200,
     height: 200,
-    borderRadius: 8, // Cantos levemente arredondados
+    borderRadius: 8,
     backgroundColor: "transparent",
   },
   typesContainer: {
@@ -201,6 +182,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginHorizontal: 16,
+    marginTop: 10, // Adicionado um pouco de espaço
   },
   innerDivider: {
     marginVertical: 12,

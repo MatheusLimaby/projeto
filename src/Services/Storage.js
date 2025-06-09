@@ -2,7 +2,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // --- CHAVES DE ARMAZENAMENTO ---
 const TRAINERS_KEY = "@PokemonApp:trainers";
-const FAVORITES_KEY = "@PokemonApp:favorites";
 const TEAMS_KEY = "@PokemonApp:teams";
 const BADGES_KEY = "@PokemonApp:badges";
 
@@ -76,31 +75,5 @@ export const saveBadge = (badgeData) => saveItem(BADGES_KEY, badgeData);
 export const deleteBadge = (id) => deleteItem(BADGES_KEY, id);
 export const getBadgeById = (id) => getItemById(BADGES_KEY, id);
 
-// Favoritos (lógica um pouco diferente, então mantemos separado)
-export const getFavorites = async () => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(FAVORITES_KEY);
-    return jsonValue != null ? JSON.parse(jsonValue) : [];
-  } catch (e) {
-    console.error("Error reading favorites", e);
-    return [];
-  }
-};
 
-export const toggleFavorite = async (pokemon) => {
-  try {
-    let favorites = await getFavorites();
-    const existingIndex = favorites.findIndex((p) => p.id === pokemon.id);
 
-    if (existingIndex > -1) {
-      favorites.splice(existingIndex, 1);
-    } else {
-      favorites.push(pokemon);
-    }
-
-    const jsonValue = JSON.stringify(favorites);
-    await AsyncStorage.setItem(FAVORITES_KEY, jsonValue);
-  } catch (e) {
-    console.error("Error toggling favorite", e);
-  }
-};

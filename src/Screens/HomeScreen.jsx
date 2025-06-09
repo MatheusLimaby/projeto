@@ -36,14 +36,7 @@ export default function HomeScreen({ navigation }) {
           color="#E53935" // Vermelho
           onPress={() => navigation.navigate("Pokédex", { screen: "Pokedex" })}
         />
-        <MenuCard
-          title="Favoritos"
-          icon="heart"
-          color="#8E24AA" // Roxo
-          onPress={() =>
-            navigation.navigate("Favoritos", { screen: "FavoritsScreen" })
-          }
-        />
+       
 
         <MenuCard
           title="Itens"
