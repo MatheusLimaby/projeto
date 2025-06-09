@@ -18,7 +18,7 @@ export default function PokedexStack() {
       <Stack.Screen
         name="PokemonDetail"
         component={PokemonDetailScreen}
-        options={{ title: "Detalle del Pokémon" }}
+        options={{ title: "Detalhes do Pokémon" }}
       />
     </Stack.Navigator>
   );

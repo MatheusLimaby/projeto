@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, Alert, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Alert,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { saveTeam, getTeamById } from "../../Services/Storage";
 
 export default function EquipeFormScreen({ route, navigation }) {
@@ -9,12 +18,7 @@ export default function EquipeFormScreen({ route, navigation }) {
   const [nomeEquipe, setNomeEquipe] = useState("");
   const [formato, setFormato] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [pokemon1, setPokemon1] = useState("");
-  const [pokemon2, setPokemon2] = useState("");
-  const [pokemon3, setPokemon3] = useState("");
-  const [pokemon4, setPokemon4] = useState("");
-  const [pokemon5, setPokemon5] = useState("");
-  const [pokemon6, setPokemon6] = useState("");
+  const [pokemons, setPokemons] = useState(Array(6).fill(""));
 
   useEffect(() => {
     if (isEditing) {
@@ -22,18 +26,24 @@ export default function EquipeFormScreen({ route, navigation }) {
         if (data) {
           setNomeEquipe(data.nomeEquipe);
           setFormato(data.formato);
-          setDescricao(data.descricao);
-          const [p1, p2, p3, p4, p5, p6] = data.pokemons;
-          setPokemon1(p1 || "");
-          setPokemon2(p2 || "");
-          setPokemon3(p3 || "");
-          setPokemon4(p4 || "");
-          setPokemon5(p5 || "");
-          setPokemon6(p6 || "");
+          setDescricao(data.descricao || "");
+          // Preenche o array de pokémons com os existentes, deixando o resto vazio
+          const existingPokemons = data.pokemons || [];
+          const filledPokemons = [
+            ...existingPokemons,
+            ...Array(6 - existingPokemons.length).fill(""),
+          ];
+          setPokemons(filledPokemons);
         }
       });
     }
   }, [teamId]);
+
+  const handlePokemonChange = (text, index) => {
+    const newPokemons = [...pokemons];
+    newPokemons[index] = text;
+    setPokemons(newPokemons);
+  };
 
   const handleSave = async () => {
     if (!nomeEquipe || !formato) {
@@ -41,21 +51,12 @@ export default function EquipeFormScreen({ route, navigation }) {
       return;
     }
 
-    const pokemons = [
-      pokemon1,
-      pokemon2,
-      pokemon3,
-      pokemon4,
-      pokemon5,
-      pokemon6,
-    ].filter((p) => p); // Filtra campos vazios
-
     const teamData = {
       id: teamId,
       nomeEquipe,
       formato,
       descricao,
-      pokemons,
+      pokemons: pokemons.filter((p) => p.trim() !== ""), // Filtra campos vazios
     };
 
     await saveTeam(teamData);
@@ -63,71 +64,108 @@ export default function EquipeFormScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, textAlign: "center", margin: 10 }}>
-        {isEditing ? "Editar Equipe" : "Nova Equipe"}
-      </Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <Text style={styles.title}>
+          {isEditing ? "Editar Equipe" : "Nova Equipe"}
+        </Text>
 
-      <TextInput
-        placeholder="Nome da Equipe"
-        value={nomeEquipe}
-        onChangeText={setNomeEquipe}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Formato da Batalha (Ex: Solo, Dupla)"
-        value={formato}
-        onChangeText={setFormato}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Descrição (Opcional)"
-        value={descricao}
-        onChangeText={setDescricao}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 20 }}
-      />
+        <View style={styles.form}>
+          <TextInput
+            placeholder="Nome da Equipe"
+            value={nomeEquipe}
+            onChangeText={setNomeEquipe}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            placeholder="Formato da Batalha (Ex: Solo, Dupla)"
+            value={formato}
+            onChangeText={setFormato}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            placeholder="Descrição (Opcional)"
+            value={descricao}
+            onChangeText={setDescricao}
+            style={[styles.input, styles.textArea]}
+            multiline
+            placeholderTextColor="#999"
+          />
 
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-        Pokémon da Equipe
-      </Text>
-      <TextInput
-        placeholder="Pokémon 1"
-        value={pokemon1}
-        onChangeText={setPokemon1}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Pokémon 2"
-        value={pokemon2}
-        onChangeText={setPokemon2}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Pokémon 3"
-        value={pokemon3}
-        onChangeText={setPokemon3}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Pokémon 4"
-        value={pokemon4}
-        onChangeText={setPokemon4}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Pokémon 5"
-        value={pokemon5}
-        onChangeText={setPokemon5}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
-      <TextInput
-        placeholder="Pokémon 6"
-        value={pokemon6}
-        onChangeText={setPokemon6}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
-      />
+          <Text style={styles.pokemonSectionTitle}>Pokémon da Equipe</Text>
+          {pokemons.map((pokemon, index) => (
+            <TextInput
+              key={index}
+              placeholder={`Pokémon ${index + 1}`}
+              value={pokemon}
+              onChangeText={(text) => handlePokemonChange(text, index)}
+              style={styles.input}
+              placeholderTextColor="#999"
+            />
+          ))}
 
-      <Button title="Salvar Equipe" onPress={handleSave} />
-    </ScrollView>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Salvar Equipe</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#eef5f9",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 30,
+    color: "#1a3b5c",
+  },
+  form: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ced4da",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  pokemonSectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1a3b5c",
+    marginTop: 10,
+    marginBottom: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+    paddingTop: 20,
+  },
+  saveButton: {
+    backgroundColor: "#1a73e8",
+    padding: 18,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+});
