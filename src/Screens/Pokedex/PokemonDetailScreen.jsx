@@ -8,8 +8,7 @@ import {
   Divider,
   Chip,
 } from "react-native-paper";
-// REMOVIDO: Funções de favorito não são mais necessárias
-// import { toggleFavorite, getFavorites } from "../../Services/Storage";
+
 import api from "../../Services/api";
 
 const capitalize = (str) =>

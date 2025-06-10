@@ -41,7 +41,7 @@ export default function HomeScreen({ navigation }) {
         <MenuCard
           title="Itens"
           icon="bag-personal"
-          color="#FBC02D" // Dourado
+          color="purple" // Dourado
           onPress={() => navigation.navigate("Itens", { screen: "ItemList" })}
         />
         <MenuCard
