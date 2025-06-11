@@ -9,8 +9,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
-import MaskInput from "react-native-mask-input";
-// 1. Import corrigido para usar o novo serviço local
+// 1. Importando a biblioteca de máscara solicitada
+import { TextInputMask } from "react-native-masked-text";
 import InsigniaService from "./InsigniaService";
 
 export default function InsigniaFormScreen({ route, navigation }) {
@@ -25,7 +25,6 @@ export default function InsigniaFormScreen({ route, navigation }) {
 
   useEffect(() => {
     if (isEditing) {
-      // 2. Chamada da função corrigida para .buscar()
       InsigniaService.buscar(badgeId).then((data) => {
         if (data) {
           setNomeInsignia(data.nomeInsignia);
@@ -56,7 +55,6 @@ export default function InsigniaFormScreen({ route, navigation }) {
       pokemonVitoria,
     };
 
-    // 3. Chamada da função corrigida para .salvar()
     await InsigniaService.salvar(badgeData);
     navigation.goBack();
   };
@@ -75,11 +73,15 @@ export default function InsigniaFormScreen({ route, navigation }) {
             onChangeText={setNomeInsignia}
             style={styles.input}
           />
-          <MaskInput
+          {/* 2. Componente de máscara aplicado na Data */}
+          <TextInputMask
+            type={"datetime"}
+            options={{
+              format: "DD/MM/YYYY",
+            }}
             style={styles.input}
             value={dataConquista}
             onChangeText={setDataConquista}
-            mask={[/\d/, /\d/, "/", /\d/, /\d/, "/", /\d/, /\d/, /\d/, /\d/]}
             placeholder="Data da Conquista (DD/MM/AAAA)"
             keyboardType="numeric"
           />

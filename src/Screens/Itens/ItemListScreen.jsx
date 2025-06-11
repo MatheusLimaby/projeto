@@ -10,10 +10,11 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-// O import do api.js foi removido
 
+// 1. A função para formatar o nome foi adicionada de volta.
 const formatItemName = (str) => {
   if (!str) return "";
+  // Troca traços por espaços e capitaliza a primeira letra.
   const replaced = str.replace(/-/g, " ");
   return replaced.charAt(0).toUpperCase() + replaced.slice(1);
 };
@@ -26,18 +27,17 @@ export default function ItemListScreen() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        // 1. A chamada à API agora usa 'fetch' diretamente
         const response = await fetch(
-          "https://pokeapi.co/api/v2/item?limit=151"
+          "https://pokeapi.co/api/v2/item?limit=100"
         );
         const listData = await response.json();
 
-        // 2. Tratamento de dados simplificado, idêntico ao da PokedexScreen
         const itemData = listData.results.map((item, index) => {
           const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item.name}.png`;
           return {
             id: index + 1,
             name: item.name,
+            // 2. Criamos um 'displayName' usando a função de formatação.
             displayName: formatItemName(item.name),
             image: imageUrl,
           };
@@ -60,6 +60,7 @@ export default function ItemListScreen() {
       onPress={() => navigation.navigate("ItemDetail", { itemName: item.name })}
     >
       <Image source={{ uri: item.image }} style={styles.itemImage} />
+      {/* 3. Agora usamos o 'displayName' formatado para exibição. */}
       <Text style={styles.itemName} numberOfLines={2}>
         {item.displayName}
       </Text>
@@ -80,14 +81,14 @@ export default function ItemListScreen() {
         data={items}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={3} // 3. Estilo de grade igual ao da Pokédex
+        numColumns={3}
         contentContainerStyle={styles.list}
       />
     </SafeAreaView>
   );
 }
 
-// 4. Estilos simplificados para parecer com a Pokédex
+// Estilos básicos
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f2f2f2" },
   loadingContainer: {
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ddd",
-    height: 120, // Altura fixa para alinhar a grade
+    height: 120,
     justifyContent: "center",
   },
   itemImage: {

@@ -9,7 +9,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-// 1. Import corrigido para usar o novo serviço local
+// 1. Importado o TextInputMask da biblioteca que você pediu
+import { TextInputMask } from "react-native-masked-text";
 import EquipeService from "./EquipeService";
 
 export default function EquipeFormScreen({ route, navigation }) {
@@ -18,18 +19,21 @@ export default function EquipeFormScreen({ route, navigation }) {
 
   const [nomeEquipe, setNomeEquipe] = useState("");
   const [formato, setFormato] = useState("");
+
+  const [membros, setMembros] = useState("");
+  const [ginasio, setGinasio] = useState("");
   const [pokemons, setPokemons] = useState("");
 
   useEffect(() => {
     if (isEditing) {
-      // 2. Chamada da função corrigida para .buscar()
       EquipeService.buscar(teamId).then((data) => {
         if (data) {
           setNomeEquipe(data.nomeEquipe);
           setFormato(data.formato);
-          if (data.pokemons && data.pokemons.length > 0) {
-            setPokemons(data.pokemons.join(", "));
-          }
+
+          setMembros(data.membros ? data.membros.join(", ") : "");
+          setGinasio(data.ginasio || "");
+          setPokemons(data.pokemons ? data.pokemons.join(", ") : "");
         }
       });
     }
@@ -41,18 +45,29 @@ export default function EquipeFormScreen({ route, navigation }) {
       return;
     }
 
+
     const pokemonsArray = pokemons
-      ? pokemons.split(",").map((p) => p.trim())
+      ? pokemons
+          .split(",")
+          .map((p) => p.trim())
+          .filter((p) => p)
+      : [];
+    const membrosArray = membros
+      ? membros
+          .split(",")
+          .map((m) => m.trim())
+          .filter((m) => m)
       : [];
 
     const teamData = {
       id: teamId,
       nomeEquipe,
       formato,
+      membros: membrosArray,
+      ginasio,
       pokemons: pokemonsArray,
     };
 
-    // 3. Chamada da função corrigida para .salvar()
     await EquipeService.salvar(teamData);
     navigation.goBack();
   };
@@ -78,7 +93,24 @@ export default function EquipeFormScreen({ route, navigation }) {
             style={styles.input}
           />
           <TextInput
-            placeholder="Pokémon, separados por vírgula"
+            placeholder="Membros (separados por vírgula)"
+            value={membros}
+            onChangeText={setMembros}
+            style={styles.input}
+            multiline
+          />
+          <TextInputMask
+            type={"custom"}
+            options={{
+              mask: "AAA-999",
+            }}
+            placeholder="Ginásio (Ex: VER-123)"
+            value={ginasio}
+            onChangeText={setGinasio}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Pokémon (separados por vírgula)"
             value={pokemons}
             onChangeText={setPokemons}
             style={styles.input}
@@ -94,7 +126,7 @@ export default function EquipeFormScreen({ route, navigation }) {
   );
 }
 
-// Estilos bastante simplificados
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

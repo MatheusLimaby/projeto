@@ -1,6 +1,6 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons"; // 1. Biblioteca de ícones importada
+import { Ionicons } from "@expo/vector-icons"; 
 
 import TreinadorStack from "./TreinadorStack";
 import PokedexStack from "./PokedexStack";

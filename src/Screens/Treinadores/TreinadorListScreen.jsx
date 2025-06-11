@@ -10,18 +10,17 @@ import {
   Image,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-// 1. Import corrigido para usar o novo serviço local
+
 import TreinadorService from "./TreinadorService";
 
-// Imagem de fallback caso o treinador não tenha foto
-const PlaceholderImage = require("../../../assets/icon.png");
+
+const PlaceholderImage = require("../../../assets/pokedex-bg.png");
 
 export default function TreinadorListScreen({ navigation }) {
   const [trainers, setTrainers] = useState([]);
   const isFocused = useIsFocused();
 
   const loadTrainers = async () => {
-    // 2. Chamada da função corrigida para .listar()
     const data = await TreinadorService.listar();
     setTrainers(data);
   };
@@ -41,7 +40,7 @@ export default function TreinadorListScreen({ navigation }) {
         {
           text: "Deletar",
           onPress: async () => {
-            // 3. Chamada da função corrigida para .remover()
+
             await TreinadorService.remover(id);
             loadTrainers();
           },
@@ -62,7 +61,7 @@ export default function TreinadorListScreen({ navigation }) {
         <Text>Idade: {item.idade}</Text>
         <Text>Cidade: {item.cidadeNatal}</Text>
         <Text>Pokémon Inicial: {item.pokemonInicial}</Text>
-        {/* Campo de insígnias removido para consistência com o formulário */}
+        <Text>Itens: {item.itens && item.itens.length > 0 ? item.itens : "Nenhum"}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -104,7 +103,7 @@ export default function TreinadorListScreen({ navigation }) {
   );
 }
 
-// Estilos simplificados mantidos
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-// 1. Import corrigido para usar o novo serviço local
+
 import InsigniaService from "./InsigniaService";
 
 export default function InsigniaListScreen({ navigation }) {
@@ -17,7 +17,7 @@ export default function InsigniaListScreen({ navigation }) {
   const isFocused = useIsFocused();
 
   const loadBadges = async () => {
-    // 2. Chamada da função corrigida para .listar()
+  
     const data = await InsigniaService.listar();
     setBadges(data);
   };
@@ -37,7 +37,7 @@ export default function InsigniaListScreen({ navigation }) {
         {
           text: "Deletar",
           onPress: async () => {
-            // 3. Chamada da função corrigida para .remover()
+    
             await InsigniaService.remover(id);
             loadBadges();
           },

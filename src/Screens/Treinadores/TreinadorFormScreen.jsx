@@ -11,10 +11,10 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-// 1. Import corrigido para usar o novo serviço local
+import { TextInputMask } from "react-native-masked-text";
 import TreinadorService from "./TreinadorService";
 
-const PlaceholderImage = require("../../../assets/icon.png");
+const PlaceholderImage = require("../../../assets/pokedex-bg.png");
 
 export default function TreinadorFormScreen({ route, navigation }) {
   const { trainerId } = route.params || {};
@@ -24,17 +24,18 @@ export default function TreinadorFormScreen({ route, navigation }) {
   const [idade, setIdade] = useState("");
   const [cidadeNatal, setCidadeNatal] = useState("");
   const [pokemonInicial, setPokemonInicial] = useState("");
+  const [itens, setItens] = useState("");
   const [imagem, setImagem] = useState(null);
 
   useEffect(() => {
     if (isEditing) {
-      // 2. Chamada da função corrigida para .buscar()
       TreinadorService.buscar(trainerId).then((data) => {
         if (data) {
           setNome(data.nome);
           setIdade(data.idade.toString());
           setCidadeNatal(data.cidadeNatal);
           setPokemonInicial(data.pokemonInicial);
+          setItens(data.itens ? data.itens.join(", ") : "");
           setImagem(data.imagem);
         }
       });
@@ -60,16 +61,24 @@ export default function TreinadorFormScreen({ route, navigation }) {
       return;
     }
 
+
+    const itensArray = itens
+      ? itens
+          .split(",")
+          .map((i) => i.trim())
+          .filter((i) => i)
+      : [];
+
     const trainerData = {
       id: trainerId,
       nome,
       idade: parseInt(idade, 10),
       cidadeNatal,
       pokemonInicial,
+      itens: itensArray,
       imagem,
     };
 
-    // 3. Chamada da função corrigida para .salvar()
     await TreinadorService.salvar(trainerData);
     navigation.goBack();
   };
@@ -96,12 +105,14 @@ export default function TreinadorFormScreen({ route, navigation }) {
             onChangeText={setNome}
             style={styles.input}
           />
-          <TextInput
+       
+          <TextInputMask
+            type={"only-numbers"}
             placeholder="Idade"
             value={idade}
             onChangeText={setIdade}
-            keyboardType="numeric"
             style={styles.input}
+            keyboardType="numeric"
           />
           <TextInput
             placeholder="Cidade Natal"
@@ -115,6 +126,13 @@ export default function TreinadorFormScreen({ route, navigation }) {
             onChangeText={setPokemonInicial}
             style={styles.input}
           />
+          <TextInput
+            placeholder="Itens (separados por vírgula)"
+            value={itens}
+            onChangeText={setItens}
+            style={styles.input}
+            multiline
+          />
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Salvar</Text>
@@ -125,7 +143,7 @@ export default function TreinadorFormScreen({ route, navigation }) {
   );
 }
 
-// Estilos simplificados mantidos
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

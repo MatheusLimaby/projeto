@@ -1,4 +1,4 @@
-// src/Services/EquipeService.js
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const KEY = "@PokemonApp:teams";

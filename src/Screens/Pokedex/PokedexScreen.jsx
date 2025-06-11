@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Card, Avatar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-// O import do api.js foi removido
+
 
 const capitalize = (str) => {
   if (!str) return "";

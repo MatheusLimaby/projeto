@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-// 1. Import corrigido para usar o novo serviço local
+
 import EquipeService from "./EquipeService";
 
 export default function EquipeListScreen({ navigation }) {
@@ -17,7 +17,7 @@ export default function EquipeListScreen({ navigation }) {
   const isFocused = useIsFocused();
 
   const loadTeams = async () => {
-    // 2. Chamada da função corrigida para .listar()
+ 
     const data = await EquipeService.listar();
     setTeams(data);
   };
@@ -37,7 +37,7 @@ export default function EquipeListScreen({ navigation }) {
         {
           text: "Deletar",
           onPress: async () => {
-            // 3. Chamada da função corrigida para .remover()
+
             await EquipeService.remover(id);
             loadTeams();
           },
@@ -51,6 +51,8 @@ export default function EquipeListScreen({ navigation }) {
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{item.nomeEquipe}</Text>
       <Text style={styles.cardSubtitle}>Formato: {item.formato}</Text>
+      <Text style={styles.cardContent}>Membros: {item.membros}</Text>
+      <Text style={styles.cardContent}>Ginásio: {item.ginasio}</Text>
       <Text style={styles.cardContent}>
         Pokémon:{" "}
         {item.pokemons && item.pokemons.length > 0
@@ -95,7 +97,6 @@ export default function EquipeListScreen({ navigation }) {
   );
 }
 
-// Estilos bastante simplificados
 const styles = StyleSheet.create({
   container: {
     flex: 1,

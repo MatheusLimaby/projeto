@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Text,
-  Image,
-  ActivityIndicator,
-  SafeAreaView,
-  Button,
-} from "react-native";
+import { View, StyleSheet, ScrollView, Text, Image, ActivityIndicator, SafeAreaView, Button } from "react-native";
 // O import do api.js foi removido
 
 const capitalize = (str) =>
@@ -27,9 +18,7 @@ export default function ItemDetailScreen({ route, navigation }) {
     const fetchItem = async () => {
       try {
         // 1. A chamada à API agora usa 'fetch' diretamente
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/item/${itemName}`
-        );
+        const response = await fetch(`https://pokeapi.co/api/v2/item/${itemName}`);
         const data = await response.json();
         setItem(data);
       } catch (error) {
@@ -78,10 +67,10 @@ export default function ItemDetailScreen({ route, navigation }) {
           <Text style={styles.infoValue}>{capitalize(item.category.name)}</Text>
         </View>
         <View style={styles.infoBox}>
-          <Text style={styles.infoLabel}>Custo:</Text>
-          <Text style={styles.infoValue}>
-            {item.cost === 0 ? "Não está à venda" : `${item.cost} moedas`}
-          </Text>
+           <Text style={styles.infoLabel}>Custo:</Text>
+           <Text style={styles.infoValue}>
+             {item.cost === 0 ? "Não está à venda" : `${item.cost} moedas`}
+           </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -101,10 +90,10 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   errorText: {
-    textAlign: "center",
+    textAlign: 'center',
     margin: 20,
     fontSize: 16,
   },
@@ -123,23 +112,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginBottom: 20,
-    color: "#333",
+    color: '#333'
   },
   infoBox: {
-    width: "100%",
-    backgroundColor: "#fff",
+    width: '100%',
+    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     marginBottom: 10,
   },
   infoLabel: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   infoValue: {
     fontSize: 16,
-    color: "#555",
+    color: '#555',
   },
 });

@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Button,
 } from "react-native";
-// O import do api.js foi removido
 
 const capitalize = (str) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
@@ -91,7 +90,7 @@ export default function PokemonDetailScreen({ route, navigation }) {
   );
 }
 
-// Estilos bastante simplificados
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
