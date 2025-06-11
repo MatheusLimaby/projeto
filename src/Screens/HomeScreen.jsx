@@ -2,9 +2,12 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Text, Avatar, Card } from "react-native-paper";
 
-// Componente para os cartões de menu, agora mais robusto
 const MenuCard = ({ title, icon, color, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.cardContainer} activeOpacity={0.8}>
+  <TouchableOpacity
+    onPress={onPress}
+    style={styles.cardContainer}
+    activeOpacity={0.8}
+  >
     <Card style={[styles.card, { backgroundColor: color }]}>
       <Card.Content style={styles.cardContent}>
         <Avatar.Icon size={48} icon={icon} style={styles.cardIcon} />
@@ -36,7 +39,6 @@ export default function HomeScreen({ navigation }) {
           color="#E53935" // Vermelho
           onPress={() => navigation.navigate("Pokédex", { screen: "Pokedex" })}
         />
-       
 
         <MenuCard
           title="Itens"
@@ -63,7 +65,7 @@ export default function HomeScreen({ navigation }) {
 
         <MenuCard
           title="Minhas Equipes"
-          icon="account-multiple" 
+          icon="account-multiple"
           color="#43A047" // Verde
           onPress={() =>
             navigation.navigate("Minhas Equipes", { screen: "EquipeList" })
@@ -77,10 +79,10 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "",
+    backgroundColor: "#d2d2d2",
   },
   header: {
-    backgroundColor: '#333', // Fundo escuro para o cabeçalho
+    backgroundColor: "#333", // Fundo escuro para o cabeçalho
     paddingVertical: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 10,
@@ -101,14 +103,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   menuGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
     paddingHorizontal: 10,
     paddingTop: 20,
   },
   cardContainer: {
-    width: '45%', // Ocupa quase metade da tela, permitindo 2 colunas
+    width: "45%", // Ocupa quase metade da tela, permitindo 2 colunas
     marginBottom: 20,
   },
   card: {
@@ -120,19 +122,19 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   cardContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 20,
     paddingHorizontal: 10,
   },
   cardIcon: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Fundo do ícone semi-transparente
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Fundo do ícone semi-transparente
   },
   cardLabel: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

@@ -9,14 +9,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import { getBadges, deleteBadge } from "../../Services/Storage";
+// 1. Import corrigido para usar o novo serviço local
+import InsigniaService from "./InsigniaService";
 
 export default function InsigniaListScreen({ navigation }) {
   const [badges, setBadges] = useState([]);
   const isFocused = useIsFocused();
 
   const loadBadges = async () => {
-    const data = await getBadges();
+    // 2. Chamada da função corrigida para .listar()
+    const data = await InsigniaService.listar();
     setBadges(data);
   };
 
@@ -35,7 +37,8 @@ export default function InsigniaListScreen({ navigation }) {
         {
           text: "Deletar",
           onPress: async () => {
-            await deleteBadge(id);
+            // 3. Chamada da função corrigida para .remover()
+            await InsigniaService.remover(id);
             loadBadges();
           },
           style: "destructive",
@@ -45,17 +48,15 @@ export default function InsigniaListScreen({ navigation }) {
   };
 
   const renderBadgeItem = ({ item }) => (
-    <View style={styles.badgeCard}>
-      <Text style={styles.badgeName}>{item.nomeInsignia}</Text>
-      <Text style={styles.gymInfo}>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>{item.nomeInsignia}</Text>
+      <Text style={styles.cardSubtitle}>
         Líder: {item.liderGinasio} em {item.cidadeGinasio}
       </Text>
-      <Text style={styles.dateInfo}>Conquistada em: {item.dataConquista}</Text>
-      {item.pokemonVitoria && (
-        <Text style={styles.victoryPokemon}>
-          Pokémon da Vitória: {item.pokemonVitoria}
-        </Text>
-      )}
+      <Text>Conquistada em: {item.dataConquista}</Text>
+      {item.pokemonVitoria ? (
+        <Text>Pokémon da Vitória: {item.pokemonVitoria}</Text>
+      ) : null}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}
@@ -82,110 +83,84 @@ export default function InsigniaListScreen({ navigation }) {
         style={styles.addButton}
         onPress={() => navigation.navigate("InsigniaForm", {})}
       >
-        <Text style={styles.addButtonText}>Registrar Nova Insígnia</Text>
+        <Text style={styles.buttonText}>Registrar Nova Insígnia</Text>
       </TouchableOpacity>
       <FlatList
         data={badges}
         keyExtractor={(item) => item.id}
         renderItem={renderBadgeItem}
-        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={styles.emptyListText}>Nenhuma insígnia registrada.</Text>
+          <Text style={styles.emptyText}>Nenhuma insígnia registrada.</Text>
         }
       />
     </SafeAreaView>
   );
 }
 
+// Estilos bastante simplificados
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f2f7", // Um fundo com tom de lavanda claro
+    backgroundColor: "#f2f2f2",
+    padding: 10,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 20,
-    color: "#4a0e67", // Roxo escuro
+    margin: 20,
   },
   addButton: {
-    backgroundColor: "#8a2be2", // Um roxo médio (BlueViolet)
+    backgroundColor: "purple",
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
-    marginHorizontal: 20,
     marginBottom: 20,
   },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  badgeCard: {
+  card: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    borderLeftWidth: 5,
-    borderLeftColor: "#ffd700", // Dourado para destacar
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  badgeName: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#4a0e67",
-    marginBottom: 8,
-  },
-  gymInfo: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 4,
-  },
-  dateInfo: {
-    fontSize: 14,
-    color: "#777",
+    padding: 15,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
     marginBottom: 10,
   },
-  victoryPokemon: {
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cardSubtitle: {
     fontSize: 14,
     color: "#555",
-    fontStyle: "italic",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginTop: 10,
+    marginTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    paddingTop: 15,
   },
   button: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
     marginLeft: 10,
   },
   editButton: {
-    backgroundColor: "#9370db", // Roxo mais claro (MediumPurple)
+    backgroundColor: "orange",
   },
   deleteButton: {
-    backgroundColor: "#c71585", // Rosa forte (MediumVioletRed)
+    backgroundColor: "red",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
   },
-  emptyListText: {
+  emptyText: {
     textAlign: "center",
     marginTop: 50,
     fontSize: 16,
-    color: "#666",
   },
 });

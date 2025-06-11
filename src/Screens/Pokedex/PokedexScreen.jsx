@@ -1,40 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import {
-  ActivityIndicator,
-  Appbar,
-  Card,
-  Avatar,
+  View,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
   Text,
-} from "react-native-paper";
+  ActivityIndicator,
+} from "react-native";
+import { Card, Avatar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import api from "../../Services/api";
+// O import do api.js foi removido
 
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
-// Cores associadas a cada tipo de Pokémon
-const getTypeColor = (type) => {
-  const colors = {
-    fire: "#FFA07A",
-    grass: "#90EE90",
-    water: "#87CEFA",
-    bug: "#94BC4A",
-    normal: "#D8BFD8",
-    poison: "#DDA0DD",
-    electric: "#FFD700",
-    ground: "#E0C068",
-    fairy: "#FFB6C1",
-    fighting: "#FF6347",
-    psychic: "#FFC0CB",
-    rock: "#B0A494",
-    ghost: "#7B62A3",
-    ice: "#ADD8E6",
-    dragon: "#7038F8",
-    steel: "#B8B8D0",
-    dark: "#705848",
-    flying: "#A890F0",
-  };
-  return colors[type] || "#A9A9A9";
+const capitalize = (str) => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 export default function PokedexScreen() {
@@ -45,16 +24,23 @@ export default function PokedexScreen() {
   useEffect(() => {
     const fetchPokemons = async () => {
       try {
-        const response = await api.get("pokemon?limit=151");
+        // 1. A chamada à API agora usa 'fetch' diretamente
+        const response = await fetch(
+          "https://pokeapi.co/api/v2/pokemon?limit=151"
+        );
+        const listData = await response.json(); // Converte a resposta para JSON
+
+        // 2. O tratamento de dados com Promise.all foi mantido
         const pokemonDetails = await Promise.all(
-          response.data.results.map(async (pokemon) => {
-            const details = await api.get(pokemon.url);
+          listData.results.map(async (pokemon) => {
+            // 3. A busca de detalhes também usa 'fetch'
+            const detailResponse = await fetch(pokemon.url);
+            const details = await detailResponse.json();
+
             return {
-              id: details.data.id,
-              name: details.data.name,
-              image:
-                details.data.sprites.other["official-artwork"].front_default,
-              type: details.data.types[0].type.name,
+              id: details.id,
+              name: details.name,
+              image: details.sprites.other["official-artwork"].front_default,
             };
           })
         );
@@ -68,7 +54,6 @@ export default function PokedexScreen() {
     fetchPokemons();
   }, []);
 
-  // Card de Pokémon com novo estilo retangular
   const renderItem = ({ item }) => (
     <View style={styles.cardContainer}>
       <TouchableOpacity
@@ -78,21 +63,14 @@ export default function PokedexScreen() {
         }
       >
         <Card style={styles.card}>
-          {/* Seção superior do card com a cor do tipo */}
-          <View
-            style={[
-              styles.imageContainer,
-              { backgroundColor: getTypeColor(item.type) },
-            ]}
-          >
+          <View style={styles.imageContainer}>
             <Avatar.Image
               source={{ uri: item.image }}
-              size={60}
+              size={80}
               style={styles.avatar}
             />
           </View>
-          {/* Seção inferior do card com o nome e ID */}
-          <View style={styles.contentContainer}>
+          <View style={styles.infoContainer}>
             <Text style={styles.pokemonName} numberOfLines={1}>
               {capitalize(item.name)}
             </Text>
@@ -115,12 +93,11 @@ export default function PokedexScreen() {
 
   return (
     <View style={styles.container}>
-
       <FlatList
         data={pokemons}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={4}
+        numColumns={3}
         contentContainerStyle={styles.list}
       />
     </View>
@@ -128,62 +105,45 @@ export default function PokedexScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, backgroundColor: "#f2f2f2" },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
   },
-  appbar: {
-    backgroundColor: "#E63F34",
-  },
-  appbarTitle: {
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
   list: {
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
     paddingTop: 8,
   },
   cardContainer: {
-    flex: 1 / 4, // Ocupa 1/4 da largura para a grade de 4 colunas
-    padding: 4,
+    flex: 1 / 3,
+    padding: 6,
   },
   card: {
-    borderRadius: 10, // Cantos arredondados
-    elevation: 4,
-    overflow: "hidden", // Garante que o conteúdo interno respeite os cantos arredondados
+    borderRadius: 10,
     backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
+    elevation: 2,
   },
   imageContainer: {
-    padding: 5,
     alignItems: "center",
     justifyContent: "center",
-    height: 80, // Altura fixa para a área da imagem
+    padding: 10,
   },
   avatar: {
     backgroundColor: "transparent",
   },
-  contentContainer: {
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+  infoContainer: {
+    padding: 10,
     alignItems: "center",
   },
   pokemonName: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "center",
   },
   pokemonId: {
-    fontSize: 10,
+    fontSize: 12,
     color: "gray",
-    marginTop: 2,
   },
 });

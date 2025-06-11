@@ -8,61 +8,55 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Image, // 1. Importar Image
+  Image,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker"; // 2. Importar ImagePicker
-import { saveTrainer, getTrainerById } from "../../Services/Storage";
+import * as ImagePicker from "expo-image-picker";
+// 1. Import corrigido para usar o novo serviço local
+import TreinadorService from "./TreinadorService";
+
+const PlaceholderImage = require("../../../assets/icon.png");
 
 export default function TreinadorFormScreen({ route, navigation }) {
-  const { trainerId } = route.params;
+  const { trainerId } = route.params || {};
   const isEditing = !!trainerId;
 
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [cidadeNatal, setCidadeNatal] = useState("");
   const [pokemonInicial, setPokemonInicial] = useState("");
-  const [numInsignias, setNumInsignias] = useState("");
-  const [imagem, setImagem] = useState(null); // 3. State para a imagem
+  const [imagem, setImagem] = useState(null);
 
   useEffect(() => {
     if (isEditing) {
-      getTrainerById(trainerId).then((data) => {
+      // 2. Chamada da função corrigida para .buscar()
+      TreinadorService.buscar(trainerId).then((data) => {
         if (data) {
           setNome(data.nome);
           setIdade(data.idade.toString());
           setCidadeNatal(data.cidadeNatal);
           setPokemonInicial(data.pokemonInicial);
-          setNumInsignias(data.numInsignias.toString());
-          setImagem(data.imagem); // Carrega a imagem existente
+          setImagem(data.imagem);
         }
       });
     }
   }, [trainerId]);
 
-  // 4. Função para escolher imagem
   const escolherImagem = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Permissão necessária",
-        "É preciso permitir o acesso à galeria."
-      );
-      return;
-    }
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.5,
     });
+
     if (!result.canceled) {
       setImagem(result.assets[0].uri);
     }
   };
 
   const handleSave = async () => {
-    if (!nome || !idade || !cidadeNatal || !pokemonInicial || !numInsignias) {
-      Alert.alert("Erro de Validação", "Todos os campos são obrigatórios!");
+    if (!nome || !idade) {
+      Alert.alert("Erro", "Nome e idade são obrigatórios!");
       return;
     }
 
@@ -72,11 +66,11 @@ export default function TreinadorFormScreen({ route, navigation }) {
       idade: parseInt(idade, 10),
       cidadeNatal,
       pokemonInicial,
-      numInsignias: parseInt(numInsignias, 10),
-      imagem: imagem, // Salva a URI da imagem
+      imagem,
     };
 
-    await saveTrainer(trainerData);
+    // 3. Chamada da função corrigida para .salvar()
+    await TreinadorService.salvar(trainerData);
     navigation.goBack();
   };
 
@@ -87,32 +81,20 @@ export default function TreinadorFormScreen({ route, navigation }) {
           {isEditing ? "Editar Treinador" : "Novo Treinador"}
         </Text>
 
-        {/* 5. UI para a imagem, integrada ao estilo */}
-        <View style={styles.imagePickerContainer}>
-          <TouchableOpacity onPress={escolherImagem}>
-            {imagem ? (
-              <Image source={{ uri: imagem }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarPlaceholderText}>?</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.imagePickerButton}
-            onPress={escolherImagem}
-          >
-            <Text style={styles.imagePickerButtonText}>Escolher Foto</Text>
-          </TouchableOpacity>
-        </View>
-
         <View style={styles.form}>
+          <TouchableOpacity onPress={escolherImagem} style={styles.imagePicker}>
+            <Image
+              source={imagem ? { uri: imagem } : PlaceholderImage}
+              style={styles.avatar}
+            />
+            <Text style={styles.imagePickerText}>Escolher Foto</Text>
+          </TouchableOpacity>
+
           <TextInput
             placeholder="Nome do Treinador"
             value={nome}
             onChangeText={setNome}
             style={styles.input}
-            placeholderTextColor="#999"
           />
           <TextInput
             placeholder="Idade"
@@ -120,29 +102,18 @@ export default function TreinadorFormScreen({ route, navigation }) {
             onChangeText={setIdade}
             keyboardType="numeric"
             style={styles.input}
-            placeholderTextColor="#999"
           />
           <TextInput
             placeholder="Cidade Natal"
             value={cidadeNatal}
             onChangeText={setCidadeNatal}
             style={styles.input}
-            placeholderTextColor="#999"
           />
           <TextInput
             placeholder="Pokémon Inicial"
             value={pokemonInicial}
             onChangeText={setPokemonInicial}
             style={styles.input}
-            placeholderTextColor="#999"
-          />
-          <TextInput
-            placeholder="Nº de Insígnias"
-            value={numInsignias}
-            onChangeText={setNumInsignias}
-            keyboardType="numeric"
-            style={styles.input}
-            placeholderTextColor="#999"
           />
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -154,81 +125,54 @@ export default function TreinadorFormScreen({ route, navigation }) {
   );
 }
 
+// Estilos simplificados mantidos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f4f7",
+    backgroundColor: "#f2f2f2",
+  },
+  form: {
+    padding: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 30,
-    color: "#333",
+    margin: 20,
   },
-  // 6. Estilos adicionados para a funcionalidade de imagem
-  imagePickerContainer: {
+  imagePicker: {
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 20,
   },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#007bff",
-  },
-  avatarPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: "#ddd",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: "#ccc",
   },
-  avatarPlaceholderText: {
-    fontSize: 40,
-    color: "#999",
-  },
-  imagePickerButton: {
-    backgroundColor: "#6c757d",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginTop: 15,
-  },
-  imagePickerButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  // Fim dos estilos adicionados
-  form: {
-    paddingHorizontal: 20,
+  imagePickerText: {
+    color: "blue",
+    marginTop: 5,
   },
   input: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 15,
     fontSize: 16,
-    color: "#333",
   },
   saveButton: {
-    backgroundColor: "#007bff",
-    padding: 18,
-    borderRadius: 8,
+    backgroundColor: "royalblue",
+    padding: 15,
+    borderRadius: 5,
     alignItems: "center",
-    marginTop: 20,
   },
   saveButtonText: {
     color: "#fff",
-    fontSize: 18,
     fontWeight: "bold",
   },
 });

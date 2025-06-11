@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import PokedexScreen from "../Screens/Pokedex/PokedexScreen";
 import PokemonDetailScreen from "../Screens/Pokedex/PokemonDetailScreen";
 
-
 const Stack = createNativeStackNavigator();
 
 export default function PokedexStack() {

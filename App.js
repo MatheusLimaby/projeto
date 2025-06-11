@@ -2,11 +2,12 @@
 import React from "react";
 import { PaperProvider } from "react-native-paper";
 import DrawerRoutes from "./src/Routes/DrawerRoutes";
-import { theme } from "./src/theme"; // Importe nosso tema
+// 1. A importação do theme foi removida daqui.
 
 export default function App() {
   return (
-    <PaperProvider theme={theme}>
+    // 2. O PaperProvider agora usa o tema padrão, sem a prop 'theme'.
+    <PaperProvider>
       <DrawerRoutes />
     </PaperProvider>
   );

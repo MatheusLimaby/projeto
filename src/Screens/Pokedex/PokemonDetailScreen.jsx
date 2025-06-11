@@ -1,65 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Image } from "react-native";
 import {
-  ActivityIndicator,
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
   Text,
+  ActivityIndicator,
   Button,
-  Card,
-  Divider,
-  Chip,
-} from "react-native-paper";
-
-import api from "../../Services/api";
+} from "react-native";
+// O import do api.js foi removido
 
 const capitalize = (str) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
-
-// Cores para os tipos e o tema
-const getTypeColor = (type) => {
-  const colors = {
-    fire: "#FD7D24",
-    grass: "#9BCC50",
-    water: "#4592C4",
-    bug: "#729F3F",
-    normal: "#A4ACAF",
-    poison: "#B97FC9",
-    electric: "#EED535",
-    ground: "#AB9842",
-    fairy: "#FDB9E9",
-    fighting: "#D56723",
-    psychic: "#F366B9",
-    rock: "#A38C21",
-    ghost: "#7B62A3",
-    ice: "#51C4E7",
-    dragon: "#F16E57",
-    steel: "#9EB7B8",
-    dark: "#707070",
-    flying: "#A890F0",
-  };
-  return colors[type] || "#A9A9A9";
-};
 
 export default function PokemonDetailScreen({ route, navigation }) {
   const { pokemonId } = route.params;
   const [pokemon, setPokemon] = useState(null);
   const [loading, setLoading] = useState(true);
-  // REMOVIDO: Estado 'isFavorite'
-  // const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        setLoading(true);
-        const response = await api.get(`pokemon/${pokemonId}`);
-        // REMOVIDO: Lógica para verificar se é favorito
-        setPokemon(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar detalhes:", error);
-        // Adicionado: Alerta para o usuário em caso de erro
-        Alert.alert(
-          "Erro",
-          "Não foi possível carregar os detalhes do Pokémon."
+        // 1. A chamada à API agora usa 'fetch' diretamente
+        const response = await fetch(
+          `https://pokeapi.co/api/v2/pokemon/${pokemonId}`
         );
+        const data = await response.json(); // Converte a resposta para JSON
+        setPokemon(data);
+      } catch (error) {
+        console.error("Erro ao buscar detalhes do Pokémon:", error);
       } finally {
         setLoading(false);
       }
@@ -67,11 +36,11 @@ export default function PokemonDetailScreen({ route, navigation }) {
     fetchDetails();
   }, [pokemonId]);
 
-  // REMOVIDO: Função handleToggleFavorite
-
   if (loading) {
     return (
-      <ActivityIndicator style={styles.loader} animating={true} size="large" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator animating={true} size="large" />
+      </View>
     );
   }
 
@@ -79,135 +48,108 @@ export default function PokemonDetailScreen({ route, navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>Pokémon não encontrado.</Text>
-        <Button onPress={() => navigation.goBack()}>Voltar</Button>
+        <Button title="Voltar" onPress={() => navigation.goBack()} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <Card style={styles.card}>
-          {/* REMOVIDO: Botão de favorito (FAB) */}
+    <ScrollView style={styles.container}>
+      <View style={styles.card}>
+        <Image
+          source={{
+            uri: pokemon.sprites.other["official-artwork"].front_default,
+          }}
+          style={styles.pokemonImage}
+        />
+        <Text style={styles.pokemonName}>{capitalize(pokemon.name)}</Text>
 
-          {/* Imagem do Pokémon */}
-          <Card.Content style={styles.headerContent}>
-            <Image
-              source={{
-                uri: pokemon.sprites.other["official-artwork"].front_default,
-              }}
-              style={styles.pokemonImage}
-            />
-          </Card.Content>
-
-          {/* Tipos */}
-          <Card.Content style={styles.typesContainer}>
-            {pokemon.types.map(({ type }) => (
-              <Chip
-                key={type.name}
-                style={[
-                  styles.chip,
-                  { backgroundColor: getTypeColor(type.name) },
-                ]}
-                textStyle={styles.chipText}
-              >
-                {capitalize(type.name)}
-              </Chip>
-            ))}
-          </Card.Content>
-
-          <Divider style={styles.divider} />
-
-          {/* Todas as Informações */}
-          <Card.Content style={styles.infoSection}>
-            <Text style={styles.sectionTitle}>Informações</Text>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Altura:</Text>
-              <Text style={styles.value}>{pokemon.height / 10} m</Text>
+        <View style={styles.typesContainer}>
+          {pokemon.types.map(({ type }) => (
+            <View key={type.name} style={styles.chip}>
+              <Text style={styles.chipText}>{capitalize(type.name)}</Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Peso:</Text>
-              <Text style={styles.value}>{pokemon.weight / 10} kg</Text>
-            </View>
+          ))}
+        </View>
 
-            <Divider style={styles.innerDivider} />
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Informações Básicas</Text>
+          <Text>Altura: {pokemon.height / 10} m</Text>
+          <Text>Peso: {pokemon.weight / 10} kg</Text>
+        </View>
 
-            {pokemon.stats.map((stat, index) => (
-              <View key={index} style={styles.infoRow}>
-                <Text style={styles.label}>
-                  {capitalize(stat.stat.name.replace("-", " "))}
-                </Text>
-                <Text style={styles.value}>{stat.base_stat}</Text>
-              </View>
-            ))}
-          </Card.Content>
-        </Card>
-      </ScrollView>
-    </View>
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Estatísticas</Text>
+          {pokemon.stats.map((stat, index) => (
+            <Text key={index}>
+              {capitalize(stat.stat.name.replace("-", " "))}: {stat.base_stat}
+            </Text>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
+// Estilos bastante simplificados
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F7F7F7" },
-  loader: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorText: { textAlign: "center", marginTop: 20, fontSize: 18 },
-  card: {
-    margin: 16,
-    borderRadius: 12,
-    elevation: 4,
+  container: {
+    flex: 1,
+    backgroundColor: "#f2f2f2",
   },
-  headerContent: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    paddingTop: 20,
-    paddingBottom: 10,
+  },
+  errorText: {
+    textAlign: "center",
+    margin: 20,
+    fontSize: 16,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    margin: 15,
+    padding: 15,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   pokemonImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 8,
-    backgroundColor: "transparent",
+    width: 150,
+    height: 150,
+    marginBottom: 10,
+  },
+  pokemonName: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   typesContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    paddingVertical: 10,
+    marginBottom: 15,
   },
   chip: {
+    backgroundColor: "#666",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 15,
     marginHorizontal: 5,
   },
   chipText: {
     color: "#fff",
-    fontWeight: "bold",
-  },
-  divider: {
-    marginHorizontal: 16,
-    marginTop: 10, // Adicionado um pouco de espaço
-  },
-  innerDivider: {
-    marginVertical: 12,
-    backgroundColor: "#f2f2f2",
   },
   infoSection: {
-    padding: 16,
+    width: "100%",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 12,
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-  },
-  label: {
-    fontSize: 15,
-    color: "#666",
-    textTransform: "capitalize",
-  },
-  value: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#333",
+    marginBottom: 5,
   },
 });

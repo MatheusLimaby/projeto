@@ -10,10 +10,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import MaskInput from "react-native-mask-input";
-import { saveBadge, getBadgeById } from "../../Services/Storage";
+// 1. Import corrigido para usar o novo serviço local
+import InsigniaService from "./InsigniaService";
 
 export default function InsigniaFormScreen({ route, navigation }) {
-  const { badgeId } = route.params;
+  const { badgeId } = route.params || {};
   const isEditing = !!badgeId;
 
   const [nomeInsignia, setNomeInsignia] = useState("");
@@ -24,7 +25,8 @@ export default function InsigniaFormScreen({ route, navigation }) {
 
   useEffect(() => {
     if (isEditing) {
-      getBadgeById(badgeId).then((data) => {
+      // 2. Chamada da função corrigida para .buscar()
+      InsigniaService.buscar(badgeId).then((data) => {
         if (data) {
           setNomeInsignia(data.nomeInsignia);
           setLiderGinasio(data.liderGinasio);
@@ -37,10 +39,10 @@ export default function InsigniaFormScreen({ route, navigation }) {
   }, [badgeId]);
 
   const handleSave = async () => {
-    if (!nomeInsignia || !liderGinasio || !cidadeGinasio || !dataConquista) {
+    if (!nomeInsignia || !dataConquista) {
       Alert.alert(
-        "Erro de Validação",
-        "Os campos Nome, Líder, Cidade e Data são obrigatórios!"
+        "Erro",
+        "Nome da insígnia e data da conquista são obrigatórios!"
       );
       return;
     }
@@ -54,7 +56,8 @@ export default function InsigniaFormScreen({ route, navigation }) {
       pokemonVitoria,
     };
 
-    await saveBadge(badgeData);
+    // 3. Chamada da função corrigida para .salvar()
+    await InsigniaService.salvar(badgeData);
     navigation.goBack();
   };
 
@@ -67,43 +70,36 @@ export default function InsigniaFormScreen({ route, navigation }) {
 
         <View style={styles.form}>
           <TextInput
-            placeholder="Nome da Insígnia (Ex: Insígnia da Rocha)"
+            placeholder="Nome da Insígnia"
             value={nomeInsignia}
             onChangeText={setNomeInsignia}
             style={styles.input}
-            placeholderTextColor="#999"
+          />
+          <MaskInput
+            style={styles.input}
+            value={dataConquista}
+            onChangeText={setDataConquista}
+            mask={[/\d/, /\d/, "/", /\d/, /\d/, "/", /\d/, /\d/, /\d/, /\d/]}
+            placeholder="Data da Conquista (DD/MM/AAAA)"
+            keyboardType="numeric"
           />
           <TextInput
             placeholder="Líder do Ginásio"
             value={liderGinasio}
             onChangeText={setLiderGinasio}
             style={styles.input}
-            placeholderTextColor="#999"
           />
           <TextInput
             placeholder="Cidade do Ginásio"
             value={cidadeGinasio}
             onChangeText={setCidadeGinasio}
             style={styles.input}
-            placeholderTextColor="#999"
           />
-
-          <MaskInput
-            style={styles.input}
-            value={dataConquista}
-            onChangeText={setDataConquista}
-            mask={[/\d/, /\d/, "/", /\d/, /\d/, "/", /\d/, /\d/, /\d/, /\d/]}
-            placeholder="DD/MM/AAAA"
-            keyboardType="numeric"
-            placeholderTextColor="#999"
-          />
-
           <TextInput
             placeholder="Pokémon da Vitória (Opcional)"
             value={pokemonVitoria}
             onChangeText={setPokemonVitoria}
             style={styles.input}
-            placeholderTextColor="#999"
           />
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -115,43 +111,38 @@ export default function InsigniaFormScreen({ route, navigation }) {
   );
 }
 
+// Estilos bastante simplificados
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f2f7",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 30,
-    color: "#4a0e67",
+    backgroundColor: "#f2f2f2",
   },
   form: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    margin: 20,
   },
   input: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 15,
     fontSize: 16,
-    color: "#333",
   },
   saveButton: {
-    backgroundColor: "#8a2be2",
-    padding: 18,
-    borderRadius: 8,
+    backgroundColor: "purple",
+    padding: 15,
+    borderRadius: 5,
     alignItems: "center",
-    marginTop: 20,
   },
   saveButtonText: {
     color: "#fff",
-    fontSize: 18,
     fontWeight: "bold",
   },
 });

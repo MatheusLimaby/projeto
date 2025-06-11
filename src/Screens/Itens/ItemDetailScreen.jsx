@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
 import {
-  ActivityIndicator,
-  Appbar,
-  Card,
+  View,
+  StyleSheet,
+  ScrollView,
   Text,
-  Avatar,
-  Divider,
-} from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import api from "../../Services/api";
+  Image,
+  ActivityIndicator,
+  SafeAreaView,
+  Button,
+} from "react-native";
+// O import do api.js foi removido
 
 const capitalize = (str) =>
   str
@@ -17,8 +17,7 @@ const capitalize = (str) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-export default function ItemDetailScreen({ route }) {
-  const navigation = useNavigation();
+export default function ItemDetailScreen({ route, navigation }) {
   const { itemName } = route.params;
 
   const [item, setItem] = useState(null);
@@ -27,8 +26,12 @@ export default function ItemDetailScreen({ route }) {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const response = await api.get(`item/${itemName}`);
-        setItem(response.data);
+        // 1. A chamada à API agora usa 'fetch' diretamente
+        const response = await fetch(
+          `https://pokeapi.co/api/v2/item/${itemName}`
+        );
+        const data = await response.json();
+        setItem(data);
       } catch (error) {
         console.error("Erro ao buscar detalhe do item:", error);
       } finally {
@@ -40,118 +43,103 @@ export default function ItemDetailScreen({ route }) {
 
   if (loading) {
     return (
-      <ActivityIndicator style={styles.loader} animating={true} size="large" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator animating={true} size="large" />
+      </View>
     );
   }
 
   if (!item) {
     return (
-      <View style={styles.container}>
-        <Text>Item não encontrado.</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.errorText}>Item não encontrado.</Text>
+        <Button title="Voltar" onPress={() => navigation.goBack()} />
+      </SafeAreaView>
     );
   }
 
-  // Encontra o texto de descrição em inglês e limpa quebras de linha
   const description =
     item.flavor_text_entries
       .find((e) => e.language.name === "en")
       ?.text.replace(/[\n\f\r]/g, " ") ?? "Descrição não disponível.";
 
-  const displayName = capitalize(item.name);
-
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <Card style={styles.card}>
-          <Card.Content style={styles.header}>
-            <Avatar.Image
-              size={100}
-              source={{ uri: item.sprites.default }}
-              style={styles.avatar}
-            />
-            <Text variant="headlineSmall" style={styles.title}>
-              {displayName}
-            </Text>
-          </Card.Content>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Image
+          source={{ uri: item.sprites.default }}
+          style={styles.itemImage}
+        />
+        <Text style={styles.title}>{capitalize(item.name)}</Text>
+        <Text style={styles.description}>{description}</Text>
 
-          <Divider style={styles.divider} />
-
-          <Card.Content>
-            <Text style={styles.description}>{description}</Text>
-          </Card.Content>
-
-          <Divider style={styles.divider} />
-
-          <Card.Content style={styles.infoSection}>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Categoria:</Text>
-              <Text style={styles.value}>{capitalize(item.category.name)}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Custo:</Text>
-              <Text style={styles.value}>
-                {item.cost === 0 ? "Não está à venda" : `${item.cost} moedas`}
-              </Text>
-            </View>
-          </Card.Content>
-        </Card>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Categoria:</Text>
+          <Text style={styles.infoValue}>{capitalize(item.category.name)}</Text>
+        </View>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Custo:</Text>
+          <Text style={styles.infoValue}>
+            {item.cost === 0 ? "Não está à venda" : `${item.cost} moedas`}
+          </Text>
+        </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
+// Estilos bastante simplificados
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: "#f2f2f2",
   },
-  loader: {
+  loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  card: {
-    margin: 15,
-  },
-  header: {
+  content: {
+    padding: 20,
     alignItems: "center",
-    paddingVertical: 20,
   },
-  avatar: {
-    marginBottom: 15,
-    backgroundColor: "#E0E0E0",
+  errorText: {
+    textAlign: "center",
+    margin: 20,
+    fontSize: 16,
+  },
+  itemImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
   },
   title: {
+    fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 10,
   },
   description: {
     fontSize: 16,
-    lineHeight: 24,
     textAlign: "center",
-    padding: 10,
+    marginBottom: 20,
+    color: "#333",
   },
-  divider: {
-    marginVertical: 10,
-    marginHorizontal: 15,
+  infoBox: {
+    width: "100%",
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 10,
   },
-  infoSection: {
-    paddingVertical: 10,
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-  },
-  label: {
+  infoLabel: {
     fontSize: 16,
-    color: "#666",
     fontWeight: "bold",
   },
-  value: {
+  infoValue: {
     fontSize: 16,
-    color: "#333",
+    color: "#555",
   },
 });

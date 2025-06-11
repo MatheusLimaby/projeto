@@ -9,14 +9,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import { getTeams, deleteTeam } from "../../Services/Storage";
+// 1. Import corrigido para usar o novo serviço local
+import EquipeService from "./EquipeService";
 
 export default function EquipeListScreen({ navigation }) {
   const [teams, setTeams] = useState([]);
   const isFocused = useIsFocused();
 
   const loadTeams = async () => {
-    const data = await getTeams();
+    // 2. Chamada da função corrigida para .listar()
+    const data = await EquipeService.listar();
     setTeams(data);
   };
 
@@ -35,7 +37,8 @@ export default function EquipeListScreen({ navigation }) {
         {
           text: "Deletar",
           onPress: async () => {
-            await deleteTeam(id);
+            // 3. Chamada da função corrigida para .remover()
+            await EquipeService.remover(id);
             loadTeams();
           },
           style: "destructive",
@@ -45,13 +48,15 @@ export default function EquipeListScreen({ navigation }) {
   };
 
   const renderTeamItem = ({ item }) => (
-    <View style={styles.teamCard}>
-      <Text style={styles.teamName}>{item.nomeEquipe}</Text>
-      <Text style={styles.teamFormat}>Formato: {item.formato}</Text>
-      <View style={styles.pokemonList}>
-        <Text style={styles.pokemonTitle}>Pokémon:</Text>
-        <Text style={styles.pokemonText}>{item.pokemons.join(", ")}</Text>
-      </View>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>{item.nomeEquipe}</Text>
+      <Text style={styles.cardSubtitle}>Formato: {item.formato}</Text>
+      <Text style={styles.cardContent}>
+        Pokémon:{" "}
+        {item.pokemons && item.pokemons.length > 0
+          ? item.pokemons.join(", ")
+          : "Nenhum"}
+      </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}
@@ -76,114 +81,88 @@ export default function EquipeListScreen({ navigation }) {
         style={styles.addButton}
         onPress={() => navigation.navigate("EquipeForm", {})}
       >
-        <Text style={styles.addButtonText}>Criar Nova Equipe</Text>
+        <Text style={styles.buttonText}>Criar Nova Equipe</Text>
       </TouchableOpacity>
       <FlatList
         data={teams}
         keyExtractor={(item) => item.id}
         renderItem={renderTeamItem}
-        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={styles.emptyListText}>Nenhuma equipe criada.</Text>
+          <Text style={styles.emptyText}>Nenhuma equipe criada.</Text>
         }
       />
     </SafeAreaView>
   );
 }
 
+// Estilos bastante simplificados
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#eef5f9", // Um fundo ligeiramente azulado
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 20,
-    color: "#1a3b5c",
-  },
-  addButton: {
-    backgroundColor: "#28a745", // Um azul vibrante
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  teamCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  teamName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1a3b5c",
-    marginBottom: 5,
-  },
-  teamFormat: {
-    fontSize: 14,
-    color: "#555",
-    fontStyle: "italic",
-    marginBottom: 15,
-  },
-  pokemonList: {
-    backgroundColor: "#f7f9fa",
-    borderRadius: 8,
+    backgroundColor: "#f2f2f2",
     padding: 10,
   },
-  pokemonTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 5,
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    margin: 20,
   },
-  pokemonText: {
+  addButton: {
+    backgroundColor: "green",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cardSubtitle: {
     fontSize: 14,
-    color: "#444",
-    lineHeight: 20,
+    color: "#555",
+    marginBottom: 10,
+  },
+  cardContent: {
+    fontSize: 14,
+    color: "#333",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginTop: 20,
+    marginTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    paddingTop: 15,
   },
   button: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
     marginLeft: 10,
   },
   editButton: {
-    backgroundColor: "#20c997", // Um verde menta
+    backgroundColor: "orange",
   },
   deleteButton: {
-    backgroundColor: "#e63946", // Um vermelho forte
+    backgroundColor: "red",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
   },
-  emptyListText: {
+  emptyText: {
     textAlign: "center",
     marginTop: 50,
     fontSize: 16,
-    color: "#666",
   },
 });

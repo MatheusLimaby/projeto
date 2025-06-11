@@ -9,57 +9,51 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { saveTeam, getTeamById } from "../../Services/Storage";
+// 1. Import corrigido para usar o novo serviço local
+import EquipeService from "./EquipeService";
 
 export default function EquipeFormScreen({ route, navigation }) {
-  const { teamId } = route.params;
+  const { teamId } = route.params || {};
   const isEditing = !!teamId;
 
   const [nomeEquipe, setNomeEquipe] = useState("");
   const [formato, setFormato] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [pokemons, setPokemons] = useState(Array(6).fill(""));
+  const [pokemons, setPokemons] = useState("");
 
   useEffect(() => {
     if (isEditing) {
-      getTeamById(teamId).then((data) => {
+      // 2. Chamada da função corrigida para .buscar()
+      EquipeService.buscar(teamId).then((data) => {
         if (data) {
           setNomeEquipe(data.nomeEquipe);
           setFormato(data.formato);
-          setDescricao(data.descricao || "");
-          // Preenche o array de pokémons com os existentes, deixando o resto vazio
-          const existingPokemons = data.pokemons || [];
-          const filledPokemons = [
-            ...existingPokemons,
-            ...Array(6 - existingPokemons.length).fill(""),
-          ];
-          setPokemons(filledPokemons);
+          if (data.pokemons && data.pokemons.length > 0) {
+            setPokemons(data.pokemons.join(", "));
+          }
         }
       });
     }
   }, [teamId]);
 
-  const handlePokemonChange = (text, index) => {
-    const newPokemons = [...pokemons];
-    newPokemons[index] = text;
-    setPokemons(newPokemons);
-  };
-
   const handleSave = async () => {
-    if (!nomeEquipe || !formato) {
-      Alert.alert("Erro", "Nome da equipe e formato são obrigatórios!");
+    if (!nomeEquipe) {
+      Alert.alert("Erro", "O nome da equipe é obrigatório!");
       return;
     }
+
+    const pokemonsArray = pokemons
+      ? pokemons.split(",").map((p) => p.trim())
+      : [];
 
     const teamData = {
       id: teamId,
       nomeEquipe,
       formato,
-      descricao,
-      pokemons: pokemons.filter((p) => p.trim() !== ""), // Filtra campos vazios
+      pokemons: pokemonsArray,
     };
 
-    await saveTeam(teamData);
+    // 3. Chamada da função corrigida para .salvar()
+    await EquipeService.salvar(teamData);
     navigation.goBack();
   };
 
@@ -76,38 +70,23 @@ export default function EquipeFormScreen({ route, navigation }) {
             value={nomeEquipe}
             onChangeText={setNomeEquipe}
             style={styles.input}
-            placeholderTextColor="#999"
           />
           <TextInput
-            placeholder="Formato da Batalha (Ex: Solo, Dupla)"
+            placeholder="Formato (Ex: Solo, Dupla)"
             value={formato}
             onChangeText={setFormato}
             style={styles.input}
-            placeholderTextColor="#999"
           />
           <TextInput
-            placeholder="Descrição (Opcional)"
-            value={descricao}
-            onChangeText={setDescricao}
-            style={[styles.input, styles.textArea]}
+            placeholder="Pokémon, separados por vírgula"
+            value={pokemons}
+            onChangeText={setPokemons}
+            style={styles.input}
             multiline
-            placeholderTextColor="#999"
           />
 
-          <Text style={styles.pokemonSectionTitle}>Pokémon da Equipe</Text>
-          {pokemons.map((pokemon, index) => (
-            <TextInput
-              key={index}
-              placeholder={`Pokémon ${index + 1}`}
-              value={pokemon}
-              onChangeText={(text) => handlePokemonChange(text, index)}
-              style={styles.input}
-              placeholderTextColor="#999"
-            />
-          ))}
-
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Salvar Equipe</Text>
+            <Text style={styles.saveButtonText}>Salvar</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -115,57 +94,38 @@ export default function EquipeFormScreen({ route, navigation }) {
   );
 }
 
+// Estilos bastante simplificados
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#eef5f9",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 30,
-    color: "#1a3b5c",
+    backgroundColor: "#f2f2f2",
   },
   form: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    margin: 20,
   },
   input: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#ced4da",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 15,
     fontSize: 16,
-    color: "#333",
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  pokemonSectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1a3b5c",
-    marginTop: 10,
-    marginBottom: 15,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-    paddingTop: 20,
   },
   saveButton: {
-    backgroundColor: "#1a73e8",
-    padding: 18,
-    borderRadius: 8,
+    backgroundColor: "blue",
+    padding: 15,
+    borderRadius: 5,
     alignItems: "center",
-    marginTop: 20,
   },
   saveButtonText: {
     color: "#fff",
-    fontSize: 18,
     fontWeight: "bold",
   },
 });

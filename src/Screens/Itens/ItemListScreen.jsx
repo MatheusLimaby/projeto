@@ -5,12 +5,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Text,
+  Image,
+  SafeAreaView,
 } from "react-native";
-import { Card, Avatar, Text } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import api from "../../Services/api";
+// O import do api.js foi removido
 
 const formatItemName = (str) => {
+  if (!str) return "";
   const replaced = str.replace(/-/g, " ");
   return replaced.charAt(0).toUpperCase() + replaced.slice(1);
 };
@@ -19,25 +22,28 @@ export default function ItemListScreen() {
   const navigation = useNavigation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  // ADICIONADO: Estado para controlar o número de colunas
-  const [numColumns, setNumColumns] = useState(2);
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await api.get("item?limit=52");
-        const itemDetails = await Promise.all(
-          response.data.results.map(async (item) => {
-            const details = await api.get(item.url);
-            return {
-              id: details.data.id,
-              name: details.data.name,
-              displayName: formatItemName(details.data.name),
-              image: details.data.sprites.default,
-            };
-          })
+        // 1. A chamada à API agora usa 'fetch' diretamente
+        const response = await fetch(
+          "https://pokeapi.co/api/v2/item?limit=151"
         );
-        setItems(itemDetails);
+        const listData = await response.json();
+
+        // 2. Tratamento de dados simplificado, idêntico ao da PokedexScreen
+        const itemData = listData.results.map((item, index) => {
+          const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item.name}.png`;
+          return {
+            id: index + 1,
+            name: item.name,
+            displayName: formatItemName(item.name),
+            image: imageUrl,
+          };
+        });
+
+        setItems(itemData);
       } catch (error) {
         console.error("Erro ao buscar itens:", error);
       } finally {
@@ -49,109 +55,68 @@ export default function ItemListScreen() {
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.cardContainer}>
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() =>
-          navigation.navigate("ItemDetail", { itemName: item.name })
-        }
-      >
-        <Card style={styles.card}>
-          <View style={styles.imageContainer}>
-            {item.image ? (
-              <Avatar.Image
-                source={{ uri: item.image }}
-                size={80}
-                style={styles.avatar}
-              />
-            ) : (
-              <Avatar.Icon
-                size={80}
-                icon="help-circle-outline"
-                style={styles.avatar}
-              />
-            )}
-          </View>
-          <View style={styles.contentContainer}>
-            <Text style={styles.itemName} numberOfLines={1}>
-              {item.displayName}
-            </Text>
-            <Text style={styles.itemId}>ID: {item.id}</Text>
-          </View>
-        </Card>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate("ItemDetail", { itemName: item.name })}
+    >
+      <Image source={{ uri: item.image }} style={styles.itemImage} />
+      <Text style={styles.itemName} numberOfLines={2}>
+        {item.displayName}
+      </Text>
+    </TouchableOpacity>
   );
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator animating={true} size="large" color="#E63F34" />
+        <ActivityIndicator animating={true} size="large" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <FlatList
-        // CORREÇÃO: Adicionada a prop "key" que muda junto com "numColumns"
-        key={numColumns}
         data={items}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={numColumns}
+        numColumns={3} // 3. Estilo de grade igual ao da Pokédex
         contentContainerStyle={styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
+// 4. Estilos simplificados para parecer com a Pokédex
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, backgroundColor: "#f2f2f2" },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   list: {
-    paddingHorizontal: 8,
-    paddingTop: 8,
-  },
-  cardContainer: {
-    flex: 1 / 2, // Ocupa 1/2 da largura para a grade de 2 colunas
-    padding: 8,
+    padding: 5,
   },
   card: {
-    borderRadius: 10,
-    elevation: 4,
-    overflow: "hidden",
-    backgroundColor: "#fff",
-  },
-  imageContainer: {
+    flex: 1,
+    margin: 5,
     padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#fff",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    height: 120, // Altura fixa para alinhar a grade
     justifyContent: "center",
-    height: 120,
-    backgroundColor: "#E0E0E0",
   },
-  avatar: {
-    backgroundColor: "transparent",
-  },
-  contentContainer: {
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    alignItems: "center",
+  itemImage: {
+    width: 60,
+    height: 60,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 14,
     textAlign: "center",
-  },
-  itemId: {
-    fontSize: 12,
-    color: "gray",
-    marginTop: 4,
+    marginTop: 5,
   },
 });

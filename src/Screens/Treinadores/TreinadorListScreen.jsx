@@ -7,20 +7,22 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  Image, // Importar Image
+  Image,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import { getTrainers, deleteTrainer } from "../../Services/Storage";
+// 1. Import corrigido para usar o novo serviço local
+import TreinadorService from "./TreinadorService";
 
-// Importe uma imagem padrão para ser usada caso o treinador não tenha foto
-import PlaceholderImage from "../../../assets/icon.png";
+// Imagem de fallback caso o treinador não tenha foto
+const PlaceholderImage = require("../../../assets/icon.png");
 
 export default function TreinadorListScreen({ navigation }) {
   const [trainers, setTrainers] = useState([]);
   const isFocused = useIsFocused();
 
   const loadTrainers = async () => {
-    const data = await getTrainers();
+    // 2. Chamada da função corrigida para .listar()
+    const data = await TreinadorService.listar();
     setTrainers(data);
   };
 
@@ -39,7 +41,8 @@ export default function TreinadorListScreen({ navigation }) {
         {
           text: "Deletar",
           onPress: async () => {
-            await deleteTrainer(id);
+            // 3. Chamada da função corrigida para .remover()
+            await TreinadorService.remover(id);
             loadTrainers();
           },
           style: "destructive",
@@ -49,24 +52,17 @@ export default function TreinadorListScreen({ navigation }) {
   };
 
   const renderTrainerItem = ({ item }) => (
-    <View style={styles.trainerItem}>
-      {/* 1. Imagem (avatar) adicionada ao card */}
+    <View style={styles.card}>
       <Image
         source={item.imagem ? { uri: item.imagem } : PlaceholderImage}
         style={styles.avatar}
       />
-      <View style={styles.trainerInfo}>
-        <Text style={styles.trainerName}>{item.nome}</Text>
-        <Text style={styles.trainerDetails}>Idade: {item.idade}</Text>
-        <Text style={styles.trainerDetails}>
-          Cidade Natal: {item.cidadeNatal}
-        </Text>
-        <Text style={styles.trainerDetails}>
-          Pokémon Inicial: {item.pokemonInicial}
-        </Text>
-        <Text style={styles.trainerDetails}>
-          Nº de Insígnias: {item.numInsignias}
-        </Text>
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{item.nome}</Text>
+        <Text>Idade: {item.idade}</Text>
+        <Text>Cidade: {item.cidadeNatal}</Text>
+        <Text>Pokémon Inicial: {item.pokemonInicial}</Text>
+        {/* Campo de insígnias removido para consistência com o formulário */}
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -94,99 +90,88 @@ export default function TreinadorListScreen({ navigation }) {
         style={styles.addButton}
         onPress={() => navigation.navigate("TreinadorForm", {})}
       >
-        <Text style={styles.addButtonText}>Adicionar Novo Treinador</Text>
+        <Text style={styles.buttonText}>Adicionar Novo Treinador</Text>
       </TouchableOpacity>
       <FlatList
         data={trainers}
         keyExtractor={(item) => item.id}
         renderItem={renderTrainerItem}
-        contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Nenhum treinador criado.</Text>
+        }
       />
     </SafeAreaView>
   );
 }
 
+// Estilos simplificados mantidos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f4f7",
-    paddingHorizontal: 20,
+    backgroundColor: "#f2f2f2",
+    padding: 10,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 20,
-    color: "#333",
+    margin: 20,
   },
   addButton: {
-    backgroundColor: "#1a73e8",
+    backgroundColor: "royalblue",
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
     marginBottom: 20,
   },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  list: {
-    paddingBottom: 20,
-  },
-  trainerItem: {
+  card: {
     backgroundColor: "#fff",
-    padding: 15, // Ajustado para melhor encaixe
-    borderRadius: 10,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-    flexDirection: "row", // Para alinhar imagem e texto
-    alignItems: "center", // Para alinhar imagem e texto
+    padding: 15,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 10,
+    alignItems: "center",
   },
-  // 2. Estilo para o avatar
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 15,
-    borderWidth: 2,
-    borderColor: "#eee",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 10,
   },
-  trainerInfo: {
-    flex: 1, // Faz com que as informações ocupem o espaço disponível
+  cardContent: {
+    alignItems: "center",
+    marginBottom: 10,
   },
-  trainerName: {
+  cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
-  },
-  trainerDetails: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 5,
+    marginBottom: 5,
   },
   buttonContainer: {
-    // Mantém os botões à direita
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "100%",
   },
   button: {
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    marginTop: 5, // Adicionado espaço entre os botões
+    marginHorizontal: 5,
   },
   editButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "orange",
   },
   deleteButton: {
-    backgroundColor: "#dc3545",
+    backgroundColor: "red",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  emptyText: {
     textAlign: "center",
+    marginTop: 50,
+    fontSize: 16,
   },
 });

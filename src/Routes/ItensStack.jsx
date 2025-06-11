@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import ItemListScreen from '../Screens/Itens/ItemListScreen'
-import ItemDetailScreen from '../Screens/Itens/ItemDetailScreen'
+import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ItemListScreen from "../Screens/Itens/ItemListScreen";
+import ItemDetailScreen from "../Screens/Itens/ItemDetailScreen";
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator();
 export default function ItensStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -22,4 +22,4 @@ export default function ItensStack() {
   );
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
