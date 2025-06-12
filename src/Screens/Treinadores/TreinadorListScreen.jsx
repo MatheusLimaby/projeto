@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Alert,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import {View,Text,FlatList,Alert,StyleSheet,SafeAreaView,TouchableOpacity,Image,} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 
 import TreinadorService from "./TreinadorService";
@@ -31,12 +22,12 @@ export default function TreinadorListScreen({ navigation }) {
     }
   }, [isFocused]);
 
-  const handleDelete = (id) => {
+  const Deletar = (id) => {
     Alert.alert(
       "Confirmar Exclusão",
       "Você tem certeza que quer deletar este treinador?",
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: "Cancelar"},
         {
           text: "Deletar",
           onPress: async () => {
@@ -44,7 +35,7 @@ export default function TreinadorListScreen({ navigation }) {
             await TreinadorService.remover(id);
             loadTrainers();
           },
-          style: "destructive",
+     
         },
       ]
     );
@@ -74,7 +65,7 @@ export default function TreinadorListScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.deleteButton]}
-          onPress={() => handleDelete(item.id)}
+          onPress={() => Deletar(item.id)}
         >
           <Text style={styles.buttonText}>Excluir</Text>
         </TouchableOpacity>

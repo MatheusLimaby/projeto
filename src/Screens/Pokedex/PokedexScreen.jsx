@@ -1,41 +1,35 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
+import {View,FlatList,StyleSheet,TouchableOpacity,Text,ActivityIndicator,SafeAreaView,
 } from "react-native";
 import { Card, Avatar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-
+import axios from "axios";  
 
 const capitalize = (str) => {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export default function PokedexScreen() {
-  const navigation = useNavigation();
+export default function PokedexScreen({navigation,route}) {
+ 
   const [pokemons, setPokemons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPokemons = async () => {
       try {
-        // 1. A chamada à API agora usa 'fetch' diretamente
-        const response = await fetch(
+        setLoading(true);
+        setError(null);
+
+        const listResponse = await axios.get(
           "https://pokeapi.co/api/v2/pokemon?limit=151"
         );
-        const listData = await response.json(); // Converte a resposta para JSON
 
-        // 2. O tratamento de dados com Promise.all foi mantido
         const pokemonDetails = await Promise.all(
-          listData.results.map(async (pokemon) => {
-            // 3. A busca de detalhes também usa 'fetch'
-            const detailResponse = await fetch(pokemon.url);
-            const details = await detailResponse.json();
+          listResponse.data.results.map(async (pokemon) => {
+            const detailResponse = await axios.get(pokemon.url);
+            const details = detailResponse.data;
 
             return {
               id: details.id,
@@ -44,13 +38,16 @@ export default function PokedexScreen() {
             };
           })
         );
+
         setPokemons(pokemonDetails);
-      } catch (error) {
-        console.error("Erro ao buscar Pokémon:", error);
+      } catch (erro) {
+        console.error("Erro ao procurar Pokémon:", erro);
+        setError("Falha ao carregar os Pokémon.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchPokemons();
   }, []);
 
@@ -59,23 +56,30 @@ export default function PokedexScreen() {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() =>
+    
           navigation.navigate("PokemonDetail", { pokemonId: item.id })
         }
       >
         <Card style={styles.card}>
           <View style={styles.imageContainer}>
-            <Avatar.Image
-              source={{ uri: item.image }}
-              size={80}
-              style={styles.avatar}
-            />
+            {item.image ? (
+              <Avatar.Image
+                source={{ uri: item.image }}
+                size={80}
+                style={styles.avatar}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarPlaceholderText}>?</Text>
+              </View>
+            )}
           </View>
           <View style={styles.infoContainer}>
-            <Text style={styles.pokemonName} numberOfLines={1}>
+            <Text style={styles.pokemonName}>
               {capitalize(item.name)}
             </Text>
             <Text style={styles.pokemonId}>
-              #{String(item.id).padStart(3, "0")}
+              #{String(item.id)}
             </Text>
           </View>
         </Card>
@@ -85,32 +89,54 @@ export default function PokedexScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.feedbackContainer}>
         <ActivityIndicator animating={true} size="large" color="#E63F34" />
+        <Text style={styles.feedbackText}>A carregar Pokédex...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.feedbackContainer}>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <FlatList
         data={pokemons}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
         numColumns={3}
         contentContainerStyle={styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f2f2f2" },
-  loadingContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: "#111827",
+  },
+  feedbackContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
+    padding: 20,
+  },
+  feedbackText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#E63F34",
+    textAlign: "center",
   },
   list: {
     paddingHorizontal: 8,
@@ -122,16 +148,29 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 10,
-    backgroundColor: "#fff",
-    elevation: 2,
+    backgroundColor: "#1F2937",
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   imageContainer: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 10,
+    paddingTop: 10,
   },
   avatar: {
     backgroundColor: "transparent",
+  },
+  avatarPlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarPlaceholderText: {
+    fontSize: 30,
+    color: "#ccc",
   },
   infoContainer: {
     padding: 10,
@@ -140,10 +179,12 @@ const styles = StyleSheet.create({
   pokemonName: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#333",
+    color: "white",
+    textAlign: "center",
   },
   pokemonId: {
     fontSize: 12,
-    color: "gray",
+    color: "white",
+    marginTop: 2,
   },
 });

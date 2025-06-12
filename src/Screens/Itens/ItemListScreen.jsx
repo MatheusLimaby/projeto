@@ -1,45 +1,35 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Text,
-  Image,
-  SafeAreaView,
-} from "react-native";
+import {View,FlatList,StyleSheet,TouchableOpacity,ActivityIndicator,Text,Image,SafeAreaView,} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 
-// 1. A função para formatar o nome foi adicionada de volta.
-const formatItemName = (str) => {
+
+const Capitalize = (str) => {
   if (!str) return "";
-  // Troca traços por espaços e capitaliza a primeira letra.
-  const replaced = str.replace(/-/g, " ");
-  return replaced.charAt(0).toUpperCase() + replaced.slice(1);
+  return (str.charAt(0).toUpperCase() + str.slice(1)).replace("-", " ");
 };
 
-export default function ItemListScreen() {
-  const navigation = useNavigation();
+export default function ItemListScreen({navigation,route}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch(
-          "https://pokeapi.co/api/v2/item?limit=100"
-        );
-        const listData = await response.json();
+        const response = await axios.get("https://pokeapi.co/api/v2/item?limit=150");
+        const listData = response.data.results;
+    
 
-        const itemData = listData.results.map((item, index) => {
-          const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item.name}.png`;
+        const itemDetailRequests = listData.map((item) => axios.get(item.url));
+        const itemDetails = await Promise.all(itemDetailRequests);
+    
+        const itemData = itemDetails.map((iten) => {
+          const item = iten.data;
           return {
-            id: index + 1,
+            id: item.id,
             name: item.name,
-            // 2. Criamos um 'displayName' usando a função de formatação.
-            displayName: formatItemName(item.name),
-            image: imageUrl,
+            displayName: Capitalize(item.name),
+            image: item.sprites.default, 
           };
         });
 
@@ -60,10 +50,8 @@ export default function ItemListScreen() {
       onPress={() => navigation.navigate("ItemDetail", { itemName: item.name })}
     >
       <Image source={{ uri: item.image }} style={styles.itemImage} />
-      {/* 3. Agora usamos o 'displayName' formatado para exibição. */}
-      <Text style={styles.itemName} numberOfLines={2}>
-        {item.displayName}
-      </Text>
+      <Text style={styles.itemName}>{item.displayName}</Text>
+      <Text>#{item.id}</Text>
     </TouchableOpacity>
   );
 
@@ -80,7 +68,6 @@ export default function ItemListScreen() {
       <FlatList
         data={items}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
         numColumns={3}
         contentContainerStyle={styles.list}
       />
@@ -88,7 +75,7 @@ export default function ItemListScreen() {
   );
 }
 
-// Estilos básicos
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f2f2f2" },
   loadingContainer: {

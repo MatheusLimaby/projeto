@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Alert,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import {View,Text,TextInput,Alert,StyleSheet,SafeAreaView,ScrollView,TouchableOpacity,Image,} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { TextInputMask } from "react-native-masked-text";
 import TreinadorService from "./TreinadorService";
@@ -55,7 +45,7 @@ export default function TreinadorFormScreen({ route, navigation }) {
     }
   };
 
-  const handleSave = async () => {
+  const Salvar = async () => {
     if (!nome || !idade) {
       Alert.alert("Erro", "Nome e idade são obrigatórios!");
       return;
@@ -134,7 +124,7 @@ export default function TreinadorFormScreen({ route, navigation }) {
             multiline
           />
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <TouchableOpacity style={styles.saveButton} onPress={Salvar}>
             <Text style={styles.saveButtonText}>Salvar</Text>
           </TouchableOpacity>
         </View>

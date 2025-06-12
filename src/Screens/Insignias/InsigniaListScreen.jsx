@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Alert,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-} from "react-native";
+import {View,Text,FlatList,Alert,StyleSheet,SafeAreaView,TouchableOpacity,} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 
 import InsigniaService from "./InsigniaService";
@@ -28,7 +20,7 @@ export default function InsigniaListScreen({ navigation }) {
     }
   }, [isFocused]);
 
-  const handleDelete = (id) => {
+  const Deletar = (id) => {
     Alert.alert(
       "Confirmar Exclusão",
       "Tem certeza que quer remover esta insígnia?",
@@ -41,7 +33,6 @@ export default function InsigniaListScreen({ navigation }) {
             await InsigniaService.remover(id);
             loadBadges();
           },
-          style: "destructive",
         },
       ]
     );
@@ -68,7 +59,7 @@ export default function InsigniaListScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.deleteButton]}
-          onPress={() => handleDelete(item.id)}
+          onPress={() => Deletar(item.id)}
         >
           <Text style={styles.buttonText}>Excluir</Text>
         </TouchableOpacity>

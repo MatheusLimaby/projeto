@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  Text,
-  ActivityIndicator,
-  Button,
-} from "react-native";
+import {View,StyleSheet,ScrollView,Image,Text,ActivityIndicator,Button,} from "react-native";
+import axios from "axios"; 
 
 const capitalize = (str) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
@@ -20,12 +13,12 @@ export default function PokemonDetailScreen({ route, navigation }) {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        // 1. A chamada à API agora usa 'fetch' diretamente
-        const response = await fetch(
+    
+        const response = await axios.get(
           `https://pokeapi.co/api/v2/pokemon/${pokemonId}`
         );
-        const data = await response.json(); // Converte a resposta para JSON
-        setPokemon(data);
+  
+        setPokemon(response.data);
       } catch (error) {
         console.error("Erro ao buscar detalhes do Pokémon:", error);
       } finally {
@@ -79,9 +72,9 @@ export default function PokemonDetailScreen({ route, navigation }) {
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Estatísticas</Text>
-          {pokemon.stats.map((stat, index) => (
-            <Text key={index}>
-              {capitalize(stat.stat.name.replace("-", " "))}: {stat.base_stat}
+          {pokemon.stats.map((stat) => (
+            <Text>
+              {capitalize(stat.stat.name)}: {stat.base_stat}
             </Text>
           ))}
         </View>
@@ -90,11 +83,10 @@ export default function PokemonDetailScreen({ route, navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#111827",
   },
   loadingContainer: {
     flex: 1,

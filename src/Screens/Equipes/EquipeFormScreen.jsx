@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Alert,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-// 1. Importado o TextInputMask da biblioteca que você pediu
+import { View, Text, TextInput, Alert, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, } from "react-native";
 import { TextInputMask } from "react-native-masked-text";
 import EquipeService from "./EquipeService";
 

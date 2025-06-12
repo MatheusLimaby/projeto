@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Alert,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
+import {View,Text,FlatList,Alert,StyleSheet,SafeAreaView,TouchableOpacity,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -28,7 +21,7 @@ export default function EquipeListScreen({ navigation }) {
     }
   }, [isFocused]);
 
-  const handleDelete = (id) => {
+  const Deletar = (id) => {
     Alert.alert(
       "Confirmar Exclusão",
       "Tem certeza que quer desfazer esta equipe?",
@@ -68,7 +61,7 @@ export default function EquipeListScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.deleteButton]}
-          onPress={() => handleDelete(item.id)}
+          onPress={() => Deletar(item.id)}
         >
           <Text style={styles.buttonText}>Excluir</Text>
         </TouchableOpacity>
@@ -87,7 +80,6 @@ export default function EquipeListScreen({ navigation }) {
       </TouchableOpacity>
       <FlatList
         data={teams}
-        keyExtractor={(item) => item.id}
         renderItem={renderTeamItem}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Nenhuma equipe criada.</Text>

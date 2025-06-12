@@ -10,7 +10,7 @@ const MenuCard = ({ title, icon, color, onPress }) => (
   >
     <Card style={[styles.card, { backgroundColor: color }]}>
       <Card.Content style={styles.cardContent}>
-        <Avatar.Icon size={48} icon={icon} style={styles.cardIcon} />
+        <Avatar.Icon size={50} icon={icon} style={styles.cardIcon} />
         <Text style={styles.cardLabel}>{title}</Text>
       </Card.Content>
     </Card>
@@ -20,7 +20,6 @@ const MenuCard = ({ title, icon, color, onPress }) => (
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      {/* Cabeçalho redesenhado para maior impacto visual */}
       <View style={styles.header}>
         <Avatar.Icon size={80} icon="pokeball" style={styles.pokeballIcon} />
         <Text variant="headlineLarge" style={styles.title}>
@@ -31,25 +30,24 @@ export default function HomeScreen({ navigation }) {
         </Text>
       </View>
 
-      {/* Container do menu em formato de grid */}
       <View style={styles.menuGrid}>
         <MenuCard
           title="Pokédex"
           icon="format-list-bulleted"
-          color="#E53935" // Vermelho
+          color="#E53935"
           onPress={() => navigation.navigate("Pokédex", { screen: "Pokedex" })}
         />
 
         <MenuCard
           title="Itens"
           icon="bag-personal"
-          color="purple" // Dourado
+          color="purple"
           onPress={() => navigation.navigate("Itens", { screen: "ItemList" })}
         />
         <MenuCard
           title="Treinadores"
-          icon="account-group"
-          color="#1E88E5" // Azul
+          icon="account-multiple"
+          color="#1E88E5"
           onPress={() =>
             navigation.navigate("Treinadores", { screen: "TreinadorList" })
           }
@@ -57,7 +55,7 @@ export default function HomeScreen({ navigation }) {
         <MenuCard
           title="Minhas Insígnias"
           icon="medal"
-          color="#EC407A" // Rosa
+          color="#EC407A"
           onPress={() =>
             navigation.navigate("Minhas Insígnias", { screen: "InsigniaList" })
           }
@@ -65,8 +63,8 @@ export default function HomeScreen({ navigation }) {
 
         <MenuCard
           title="Minhas Equipes"
-          icon="account-multiple"
-          color="#43A047" // Verde
+          icon="account-group"
+          color="#43A047"
           onPress={() =>
             navigation.navigate("Minhas Equipes", { screen: "EquipeList" })
           }
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#d2d2d2",
   },
   header: {
-    backgroundColor: "#333", // Fundo escuro para o cabeçalho
+    backgroundColor: "#333", 
     paddingVertical: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 10,
@@ -96,10 +94,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    color: "#FFFFFF", // Texto branco para contraste
+    color: "#FFFFFF", 
   },
   subtitle: {
-    color: "rgba(255, 255, 255, 0.8)", // Branco com leve transparência
+    color: "rgba(255, 255, 255, 0.8)", 
     marginTop: 8,
   },
   menuGrid: {
@@ -110,7 +108,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   cardContainer: {
-    width: "45%", // Ocupa quase metade da tela, permitindo 2 colunas
+    width: "45%", 
     marginBottom: 20,
   },
   card: {
@@ -128,7 +126,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   cardIcon: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Fundo do ícone semi-transparente
+    backgroundColor: "rgba(255, 255, 255, 0.2)", 
   },
   cardLabel: {
     color: "#FFFFFF",

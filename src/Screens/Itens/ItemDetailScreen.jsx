@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Text, Image, ActivityIndicator, SafeAreaView, Button } from "react-native";
-// O import do api.js foi removido
+import {View,StyleSheet,ScrollView,Text,Image,ActivityIndicator,SafeAreaView,Button,} from "react-native";
+import axios from "axios";
 
-const capitalize = (str) =>
-  str
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+const Capitalize = (str) => {
+  if (!str) return "";
+  return (str.charAt(0).toUpperCase() + str.slice(1)).replace("-", " ");
+};
 
 export default function ItemDetailScreen({ route, navigation }) {
   const { itemName } = route.params;
@@ -17,16 +16,17 @@ export default function ItemDetailScreen({ route, navigation }) {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        // 1. A chamada à API agora usa 'fetch' diretamente
-        const response = await fetch(`https://pokeapi.co/api/v2/item/${itemName}`);
-        const data = await response.json();
-        setItem(data);
+        const response = await axios.get(
+          `https://pokeapi.co/api/v2/item/${itemName}`
+        );
+        setItem(response.data);
       } catch (error) {
         console.error("Erro ao buscar detalhe do item:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchItem();
   }, [itemName]);
 
@@ -47,10 +47,8 @@ export default function ItemDetailScreen({ route, navigation }) {
     );
   }
 
-  const description =
-    item.flavor_text_entries
-      .find((e) => e.language.name === "en")
-      ?.text.replace(/[\n\f\r]/g, " ") ?? "Descrição não disponível.";
+  const description = item.flavor_text_entries[0].text || "Descrição não disponível.";
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -59,25 +57,25 @@ export default function ItemDetailScreen({ route, navigation }) {
           source={{ uri: item.sprites.default }}
           style={styles.itemImage}
         />
-        <Text style={styles.title}>{capitalize(item.name)}</Text>
+        <Text style={styles.title}>{Capitalize(item.name)}</Text>
         <Text style={styles.description}>{description}</Text>
 
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Categoria:</Text>
-          <Text style={styles.infoValue}>{capitalize(item.category.name)}</Text>
+          <Text style={styles.infoValue}>{Capitalize(item.category.name)}</Text>
         </View>
         <View style={styles.infoBox}>
-           <Text style={styles.infoLabel}>Custo:</Text>
-           <Text style={styles.infoValue}>
-             {item.cost === 0 ? "Não está à venda" : `${item.cost} moedas`}
-           </Text>
+          <Text style={styles.infoLabel}>Custo:</Text>
+          <Text style={styles.infoValue}>
+            {item.cost === 0 ? "Não está à venda" : `${item.cost} moedas`}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-// Estilos bastante simplificados
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -90,10 +88,10 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   errorText: {
-    textAlign: 'center',
+    textAlign: "center",
     margin: 20,
     fontSize: 16,
   },
@@ -112,23 +110,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginBottom: 20,
-    color: '#333'
+    color: "#333",
   },
   infoBox: {
-    width: '100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
     padding: 15,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     marginBottom: 10,
   },
   infoLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   infoValue: {
     fontSize: 16,
-    color: '#555',
+    color: "#555",
   },
 });

@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-} from "react-native";
-// 1. Importando a biblioteca de máscara solicitada
+import {View,Text,TextInput,Alert,ScrollView,StyleSheet,SafeAreaView,TouchableOpacity,} from "react-native";
 import { TextInputMask } from "react-native-masked-text";
 import InsigniaService from "./InsigniaService";
 
@@ -37,7 +27,7 @@ export default function InsigniaFormScreen({ route, navigation }) {
     }
   }, [badgeId]);
 
-  const handleSave = async () => {
+  const Salvar = async () => {
     if (!nomeInsignia || !dataConquista) {
       Alert.alert(
         "Erro",
@@ -73,7 +63,7 @@ export default function InsigniaFormScreen({ route, navigation }) {
             onChangeText={setNomeInsignia}
             style={styles.input}
           />
-          {/* 2. Componente de máscara aplicado na Data */}
+         
           <TextInputMask
             type={"datetime"}
             options={{
@@ -104,7 +94,7 @@ export default function InsigniaFormScreen({ route, navigation }) {
             style={styles.input}
           />
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <TouchableOpacity style={styles.saveButton} onPress={Salvar}>
             <Text style={styles.saveButtonText}>Salvar</Text>
           </TouchableOpacity>
         </View>

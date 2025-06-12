@@ -9,6 +9,7 @@ import InsigniaStack from "./InsigniaStack";
 import EquipeStack from "./EquipeStack";
 import HomeScreen from "../Screens/HomeScreen";
 
+
 const Drawer = createDrawerNavigator();
 
 export default function DrawerRoutes() {
@@ -54,7 +55,7 @@ export default function DrawerRoutes() {
             headerTitleStyle: {
               fontWeight: "bold",
             },
- 
+
             drawerIcon: ({ color, size }) => (
               <Ionicons name="briefcase-outline" color={color} size={size} />
             ),
@@ -72,7 +73,7 @@ export default function DrawerRoutes() {
             headerTitleStyle: {
               fontWeight: "bold",
             },
- 
+
             drawerIcon: ({ color, size }) => (
               <Ionicons name="people-outline" color={color} size={size} />
             ),
@@ -117,6 +118,7 @@ export default function DrawerRoutes() {
             ),
           }}
         />
+
       </Drawer.Navigator>
     </NavigationContainer>
   );
