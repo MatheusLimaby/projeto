@@ -7,7 +7,7 @@ import TreinadorService from "./TreinadorService";
 
 const PlaceholderImage = require("../../../assets/pokedex-bg.png");
 
-export default function TreinadorListScreen({ navigation }) {
+export default function TreinadorListScreen({ navigation, route }) {
   const [trainers, setTrainers] = useState([]);
   const isFocused = useIsFocused();
 
@@ -51,8 +51,14 @@ export default function TreinadorListScreen({ navigation }) {
         <Text style={styles.cardTitle}>{item.nome}</Text>
         <Text>Idade: {item.idade}</Text>
         <Text>Cidade: {item.cidadeNatal}</Text>
-        <Text>Pokémon Inicial: {item.pokemonInicial}</Text>
-        <Text>Itens: {item.itens && item.itens.length > 0 ? item.itens : "Nenhum"}</Text>
+        <Text>
+          Pokémon Inicial:{" "}
+          {item.pokemonInicial > 0 ? item.pokemonInicial : "Nenhum"}
+        </Text>
+        <Text>
+          Itens:{" "}
+          {item.itens && Array.isArray(item.itens) && item.itens.length > 0? item.itens.join(", ") : "Nenhum"}
+        </Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -84,7 +90,6 @@ export default function TreinadorListScreen({ navigation }) {
       </TouchableOpacity>
       <FlatList
         data={trainers}
-        keyExtractor={(item) => item.id}
         renderItem={renderTrainerItem}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Nenhum treinador criado.</Text>

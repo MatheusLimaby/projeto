@@ -25,7 +25,7 @@ export default function TreinadorFormScreen({ route, navigation }) {
           setIdade(data.idade.toString());
           setCidadeNatal(data.cidadeNatal);
           setPokemonInicial(data.pokemonInicial);
-          setItens(data.itens ? data.itens.join(", ") : "");
+          setItens(data.itens ? data.itens.join(", ") : ", ");
           setImagem(data.imagem);
         }
       });
@@ -37,7 +37,6 @@ export default function TreinadorFormScreen({ route, navigation }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.5,
     });
 
     if (!result.canceled) {
@@ -52,12 +51,7 @@ export default function TreinadorFormScreen({ route, navigation }) {
     }
 
 
-    const itensArray = itens
-      ? itens
-          .split(",")
-          .map((i) => i.trim())
-          .filter((i) => i)
-      : [];
+    const itensArray = itens ? itens.split(",").map((i) => i.trim()).filter((i) => i): [];
 
     const trainerData = {
       id: trainerId,
