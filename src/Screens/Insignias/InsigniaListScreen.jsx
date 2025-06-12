@@ -4,7 +4,7 @@ import { useIsFocused } from "@react-navigation/native";
 
 import InsigniaService from "./InsigniaService";
 
-export default function InsigniaListScreen({ navigation }) {
+export default function InsigniaListScreen({ navigation,route}) {
   const [badges, setBadges] = useState([]);
   const isFocused = useIsFocused();
 
@@ -45,9 +45,7 @@ export default function InsigniaListScreen({ navigation }) {
         Líder: {item.liderGinasio} em {item.cidadeGinasio}
       </Text>
       <Text>Conquistada em: {item.dataConquista}</Text>
-      {item.pokemonVitoria ? (
-        <Text>Pokémon da Vitória: {item.pokemonVitoria}</Text>
-      ) : null}
+      {item.pokemonVitoria} 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}

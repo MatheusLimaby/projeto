@@ -53,7 +53,7 @@ export default function TreinadorListScreen({ navigation, route }) {
         <Text>Cidade: {item.cidadeNatal}</Text>
         <Text>
           Pokémon Inicial:{" "}
-          {item.pokemonInicial > 0 ? item.pokemonInicial : "Nenhum"}
+          {item.pokemonInicial }
         </Text>
         <Text>
           Itens:{" "}

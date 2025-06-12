@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {View,FlatList,StyleSheet,TouchableOpacity,Text,ActivityIndicator,SafeAreaView,
 } from "react-native";
 import { Card, Avatar } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
 import axios from "axios";  
 
 const capitalize = (str) => {

@@ -103,7 +103,7 @@ export default function InsigniaFormScreen({ route, navigation }) {
   );
 }
 
-// Estilos bastante simplificados
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
