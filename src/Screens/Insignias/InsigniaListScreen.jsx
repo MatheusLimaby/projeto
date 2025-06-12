@@ -45,7 +45,7 @@ export default function InsigniaListScreen({ navigation,route}) {
         Líder: {item.liderGinasio} em {item.cidadeGinasio}
       </Text>
       <Text>Conquistada em: {item.dataConquista}</Text>
-      {item.pokemonVitoria} 
+      <Text>Pokemon da vitória: {item.pokemonVitoria} </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}
